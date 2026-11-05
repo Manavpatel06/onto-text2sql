@@ -1,0 +1,4 @@
+# Provisional Spider databases (final choice: Manas). One db_id per line.
+dog_kennels
+student_transcripts_tracking
+wta_1

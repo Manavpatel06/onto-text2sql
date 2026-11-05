@@ -1,0 +1,15 @@
+{
+  "n": 222,
+  "n_clear": 222,
+  "n_ambiguous": 0,
+  "ex": 0.7522522522522522,
+  "ex_clear": 0.7522522522522522,
+  "ex_ambiguous": null,
+  "validity": 0.9954954954954955,
+  "amb_precision": null,
+  "amb_recall": null,
+  "amb_f1": null,
+  "ucr": null,
+  "avg_repairs": 0.0,
+  "median_latency_s": 1.363
+}

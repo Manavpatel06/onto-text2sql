@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Secrets and local config
+.env
+
+# Large or regenerable data
+data/spider/
+data/*.zip
+.cache/
+
+# Run outputs (keep tables and labelled error sheets; raw runs can be large)
+evaluations/runs/*/raw/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Quick smoke-test runs
+evaluations/runs_smoke/

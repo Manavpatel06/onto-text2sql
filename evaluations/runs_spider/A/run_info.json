@@ -1,0 +1,11 @@
+{
+  "config": "A",
+  "model": "qwen38-27b",
+  "dataset": "spider",
+  "n": 222,
+  "dbs": [
+    "dog_kennels",
+    "student_transcripts_tracking",
+    "wta_1"
+  ]
+}

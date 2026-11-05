@@ -1,0 +1,4 @@
+openai>=1.40
+sqlglot>=25.0
+rdflib>=7.0
+pytest>=8.0
