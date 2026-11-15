@@ -1,0 +1,7 @@
+{
+  "config": "B",
+  "model": "qwen38-27b",
+  "dataset": "stress",
+  "n": 3,
+  "dbs": null
+}

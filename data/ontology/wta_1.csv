@@ -1,0 +1,47 @@
+table,column,pref_label,alt_labels,definition
+matches,,match,,One WTA tennis match.
+matches,best_of,best of,,Maximum number of sets in the match.
+matches,draw_size,draw size,,Number of players in the tournament draw.
+matches,loser_age,loser age,age,Age of the player who lost the match.
+matches,loser_entry,loser entry,entry,How the loser entered the tournament.
+matches,loser_hand,loser hand,hand,Playing hand of the loser.
+matches,loser_ht,loser height,height,Height of the loser.
+matches,loser_id,loser,,Player who lost the match.
+matches,loser_ioc,loser country,country,Country code of the loser.
+matches,loser_name,loser name,name,Name of the player who lost the match.
+matches,loser_rank,loser rank,rank|highest|best,Ranking of the loser at the time of the match. A smaller number is a better rank.
+matches,loser_rank_points,loser rank points,points|rank points|total,Ranking points of the loser at the time of the match.
+matches,loser_seed,loser seed,seed,Seed of the loser.
+matches,match_num,match number,,Number of the match within the tournament.
+matches,minutes,minutes,duration,Length of the match in minutes.
+matches,round,round,,"Round of the tournament, such as a final or a semifinal."
+matches,score,score,,Set score of the match.
+matches,surface,surface,,"Court surface, such as hard, clay, or grass."
+matches,tourney_date,tournament date,date|most recent,Date the tournament started.
+matches,tourney_id,tournament id,,Identifier of the tournament.
+matches,tourney_level,tournament level,,Level of the tournament.
+matches,tourney_name,tournament name,tournament,Name of the tournament.
+matches,winner_age,winner age,age,Age of the player who won the match.
+matches,winner_entry,winner entry,entry,How the winner entered the tournament.
+matches,winner_hand,winner hand,hand,Playing hand of the winner.
+matches,winner_ht,winner height,height,Height of the winner.
+matches,winner_id,winner,,Player who won the match.
+matches,winner_ioc,winner country,country,Country code of the winner.
+matches,winner_name,winner name,name,Name of the player who won the match.
+matches,winner_rank,winner rank,rank|highest|best,Ranking of the winner at the time of the match. A smaller number is a better rank.
+matches,winner_rank_points,winner rank points,points|rank points|total,Ranking points of the winner at the time of the match.
+matches,winner_seed,winner seed,seed,Seed of the winner.
+matches,year,year,,Year the match was played.
+players,,player,,A tennis player.
+players,player_id,player id,,Identifier of a player.
+players,first_name,first name,name,Player's given name.
+players,last_name,last name,name,Player's family name.
+players,hand,playing hand,hand,Playing hand of the player.
+players,birth_date,birth date,date|most recent|born on,Date the player was born.
+players,country_code,country code,country,Country the player represents.
+rankings,,ranking list,,A player's ranking on a given date.
+rankings,ranking_date,ranking date,date|most recent,Date this ranking was published.
+rankings,ranking,ranking,rank|highest|best,Official ranking position. A smaller number is a better rank.
+rankings,player_id,player,,Player this ranking belongs to.
+rankings,ranking_points,ranking points,points|rank points|total,Ranking points on this date.
+rankings,tours,tours,,Number of tours associated with this ranking row.

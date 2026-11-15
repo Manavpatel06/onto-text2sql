@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ontology-grounded Text2SQL</title>
+<style>
+  :root {
+    --maroon: #8C1D40;
+    --gold: #FFC627;
+    --ink: #191919;
+    --muted: #5e5360;
+    --line: #e4d5c4;
+    --paper: #fbf8f4;
+    --card: #ffffff;
+    --accent: var(--maroon);
+    --accent-soft: #f8e8ee;
+    --warn: #6e4a00;
+    --warn-soft: #fff4cc;
+    --bad: #8C1D40;
+    --mono: "Cascadia Code", "Segoe UI Mono", Consolas, monospace;
+    --sans: "Segoe UI", Candara, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--paper);
+    font: 16px/1.45 var(--sans);
+  }
+  header {
+    background: var(--maroon);
+    color: #fff;
+    border-bottom: 6px solid var(--gold);
+    padding: 26px 32px 20px;
+  }
+  header .wrap { max-width: 1480px; margin: 0 auto; }
+  h1 { font-size: 28px; font-weight: 650; margin: 0 0 4px; letter-spacing: -0.03em; color: var(--gold); }
+  .lede { color: #fff; margin: 0; max-width: 52rem; }
+  main { max-width: 1480px; margin: 0 auto; padding: 18px 32px 48px; }
+  .path {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    margin: 18px 0 8px; font-size: 14px;
+  }
+  .path span {
+    background: var(--gold); color: var(--maroon); border-radius: 999px;
+    padding: 4px 10px; font-weight: 650;
+  }
+  .path i { color: var(--maroon); font-style: normal; }
+  .note { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px;
+    margin-bottom: 18px;
+  }
+  .control-row { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 16px; margin-bottom: 14px; }
+  @media (max-width: 800px) { .control-row { grid-template-columns: 1fr; } }
+  label { display: block; font-size: 13px; color: var(--maroon); font-weight: 650; margin-bottom: 6px; }
+  select, textarea, input[type="search"] {
+    width: 100%; font: inherit; color: inherit; background: #fff;
+    border: 1px solid var(--maroon); border-radius: 10px; padding: 8px 10px;
+  }
+  textarea { min-height: 88px; resize: vertical; }
+  #run {
+    margin-top: 10px; text-align: center; background: var(--gold); color: var(--maroon); border: 0;
+    font: inherit; font-weight: 700; padding: 10px 28px; border-radius: 10px; cursor: pointer;
+  }
+  #run:disabled { opacity: 0.55; cursor: progress; }
+  h2 { font-size: 15px; margin: 0 0 8px; color: var(--maroon); }
+  .scroll { max-height: 480px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  #ontoTable { width: 100%; table-layout: fixed; }
+  #ontoTable th:nth-child(1), #ontoTable td:nth-child(1) { width: 14%; }
+  #ontoTable th:nth-child(2), #ontoTable td:nth-child(2) { width: 16%; }
+  #ontoTable th:nth-child(3), #ontoTable td:nth-child(3) { width: 14%; }
+  #ontoTable th:nth-child(4), #ontoTable td:nth-child(4) { width: 18%; }
+  #ontoTable th:nth-child(5), #ontoTable td:nth-child(5) { width: 38%; }
+  th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { position: sticky; top: 0; background: var(--maroon); color: #fff; font-weight: 650; }
+  tr.hit td { background: var(--gold); }
+  pre {
+    margin: 0; white-space: pre-wrap; font: 13px/1.45 var(--mono);
+    background: var(--maroon); color: #fff; border-radius: 10px; padding: 12px;
+  }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .banner { border-radius: 10px; padding: 10px 12px; background: var(--gold); color: var(--maroon); }
+  .banner.warn { background: var(--warn-soft); color: var(--warn); }
+  .banner.bad { background: #f8e8ee; color: var(--maroon); }
+  .meta { color: var(--muted); font-size: 13px; }
+  .hidden { display: none; }
+  #status { min-height: 1.2em; color: var(--muted); font-size: 14px; margin: 8px 0 0; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Ontology-grounded Text2SQL</h1>
+    <p class="lede">Config B answers a clear question in one pass. The spreadsheet says what each column means, the plan names the reading, and the SQL is executed. Nothing is asked back.</p>
+  </div>
+</header>
+<main>
+  <div class="path" aria-hidden="true">
+    <span>Question</span><i>→</i><span>Ontology table</span><i>→</i><span>Query plan</span><i>→</i><span>SQL</span><i>→</i><span>Result</span>
+  </div>
+  <p class="note" id="modelLine">Loading…</p>
+  <section class="card">
+    <div class="control-row">
+      <div>
+        <label for="db">Database</label>
+        <select id="db"></select>
+      </div>
+      <div>
+        <label for="samples">Clear sample questions</label>
+        <select id="samples"></select>
+      </div>
+    </div>
+    <label for="question">Question</label>
+    <textarea id="question" placeholder="Ask something this database can answer"></textarea>
+    <button id="run" type="button">Run</button>
+    <p id="status"></p>
+  </section>
+  <section class="card">
+    <h2>Ontology spreadsheet</h2>
+    <input id="filter" type="search" placeholder="Filter columns, labels, synonyms" style="margin-bottom:8px">
+    <div class="scroll">
+      <table id="ontoTable">
+        <thead><tr id="ontoHead"></tr></thead>
+        <tbody id="ontoBody"></tbody>
+      </table>
+    </div>
+  </section>
+  <section class="card stack hidden" id="result" style="margin-top:18px">
+    <div id="banner" class="banner"></div>
+    <div>
+      <h2>Columns taken from the spreadsheet</h2>
+      <div class="scroll" style="max-height:220px">
+        <table>
+          <thead><tr><th>Column</th><th>Label</th><th>Also called</th><th>Definition</th></tr></thead>
+          <tbody id="usedBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h2>Query plan</h2>
+      <pre id="plan"></pre>
+    </div>
+    <div>
+      <h2>SQL</h2>
+      <pre id="sql"></pre>
+    </div>
+    <div>
+      <h2>Output</h2>
+      <p class="meta" id="resultMeta"></p>
+      <div class="scroll">
+        <table>
+          <thead><tr id="resultHead"></tr></thead>
+          <tbody id="resultBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+const dbSelect = document.querySelector("#db");
+const samplesEl = document.querySelector("#samples");
+const questionEl = document.querySelector("#question");
+const filterEl = document.querySelector("#filter");
+const ontoHead = document.querySelector("#ontoHead");
+const ontoBody = document.querySelector("#ontoBody");
+const resultEl = document.querySelector("#result");
+let ontologyRows = [];
+let highlighted = new Set();
+
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+}
+
+async function loadMeta() {
+  const meta = await (await fetch("/api/meta")).json();
+  document.querySelector("#modelLine").textContent =
+    `Model ${meta.model}. Pick a clear question, or type your own. A run takes about 15 seconds.`;
+  dbSelect.innerHTML = meta.databases.map(db => `<option value="${esc(db.id)}">${esc(db.label)}</option>`).join("");
+  dbSelect.addEventListener("change", () => refreshDb());
+  samplesEl.addEventListener("change", () => { questionEl.value = samplesEl.value; });
+  await refreshDb();
+}
+
+async function refreshDb() {
+  const db = dbSelect.value;
+  const [ontology, samples] = await Promise.all([
+    fetch(`/api/ontology?db=${encodeURIComponent(db)}`).then(r => r.json()),
+    fetch(`/api/samples?db=${encodeURIComponent(db)}`).then(r => r.json()),
+  ]);
+  ontologyRows = ontology.rows || [];
+  highlighted = new Set();
+  const questions = samples.questions || [];
+  samplesEl.innerHTML = questions.map(sample => `<option value="${esc(sample.question)}">${esc(sample.question)}</option>`).join("");
+  questionEl.value = questions[0] ? questions[0].question : "";
+  renderOntology();
+}
+
+function renderOntology() {
+  const query = filterEl.value.trim().toLowerCase();
+  const columns = ["table", "column", "pref_label", "alt_labels", "definition"];
+  ontoHead.innerHTML = columns.map(name => `<th>${esc(name)}</th>`).join("");
+  const shown = ontologyRows.filter(row => {
+    if (!query) return true;
+    return columns.some(name => String(row[name] || "").toLowerCase().includes(query));
+  });
+  ontoBody.innerHTML = shown.map(row => {
+    const key = row.column ? `${row.table}.${row.column}` : row.table;
+    const cls = highlighted.has(key) ? "hit" : "";
+    return `<tr class="${cls}">${columns.map(name => `<td>${esc(row[name])}</td>`).join("")}</tr>`;
+  }).join("");
+}
+
+filterEl.addEventListener("input", renderOntology);
+
+function fillTable(head, body, columns, rows) {
+  head.innerHTML = (columns || []).map(name => `<th>${esc(name)}</th>`).join("");
+  body.innerHTML = (rows || []).map(row => `<tr>${row.map(cell => `<td>${esc(cell)}</td>`).join("")}</tr>`).join("");
+}
+
+document.querySelector("#run").addEventListener("click", async () => {
+  const button = document.querySelector("#run");
+  const status = document.querySelector("#status");
+  button.disabled = true;
+  status.textContent = "Reading the ontology and writing SQL…";
+  try {
+    const response = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ db_id: dbSelect.value, question: questionEl.value }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "request failed");
+    showResult(data);
+    status.textContent = `Done in ${data.latency_s}s.`;
+  } catch (err) {
+    status.textContent = err.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+
+function showResult(data) {
+  resultEl.classList.remove("hidden");
+  const banner = document.querySelector("#banner");
+  banner.className = "banner" + (data.error || data.exec_error ? " bad" : data.asked_clarification ? " warn" : "");
+  banner.textContent = data.error || data.handling;
+  highlighted = new Set(data.highlighted || []);
+  renderOntology();
+  const used = ontologyRows.filter(row => highlighted.has(row.column ? `${row.table}.${row.column}` : row.table));
+  document.querySelector("#usedBody").innerHTML = used.map(row =>
+    `<tr><td>${esc(row.table)}.${esc(row.column)}</td><td>${esc(row.pref_label)}</td><td>${esc(row.alt_labels)}</td><td>${esc(row.definition)}</td></tr>`
+  ).join("") || `<tr><td colspan="4">The plan did not name a spreadsheet column.</td></tr>`;
+  document.querySelector("#plan").textContent = data.plan_text || "(no plan)";
+  document.querySelector("#sql").textContent = data.sql || "(no SQL)";
+  const bits = [];
+  if (data.exec_error) bits.push(data.exec_error);
+  else bits.push(`${data.row_count} row${data.row_count === 1 ? "" : "s"}${data.truncated ? ", first 100 shown" : ""}`);
+  if (data.matches_gold === true) bits.push("same result as the gold SQL");
+  if (data.matches_gold === false) bits.push("different result from the gold SQL");
+  document.querySelector("#resultMeta").textContent = bits.join(" · ");
+  fillTable(document.querySelector("#resultHead"), document.querySelector("#resultBody"), data.columns, data.rows);
+  resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+loadMeta();
+</script>
+</body>
+</html>

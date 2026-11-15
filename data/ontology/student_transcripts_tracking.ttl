@@ -1,0 +1,456 @@
+@prefix : <http://example.org/student_transcripts_tracking#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+:Addresses a rdfs:Class ;
+    rdfs:label "postal address" ;
+    skos:definition "A postal address." ;
+    skos:prefLabel "postal address" .
+
+:Courses a rdfs:Class ;
+    rdfs:label "course" ;
+    skos:definition "A course the school offers." ;
+    skos:prefLabel "course" .
+
+:Degree_Programs a rdfs:Class ;
+    rdfs:label "degree program" ;
+    skos:definition "A degree a department offers." ;
+    skos:prefLabel "degree program" .
+
+:Departments a rdfs:Class ;
+    rdfs:label "department" ;
+    skos:definition "An academic department." ;
+    skos:prefLabel "department" .
+
+:Sections a rdfs:Class ;
+    rdfs:label "section" ;
+    skos:definition "A section of a course." ;
+    skos:prefLabel "section" .
+
+:Semesters a rdfs:Class ;
+    rdfs:label "semester" ;
+    skos:definition "An academic term." ;
+    skos:prefLabel "semester" .
+
+:Student_Enrolment a rdfs:Class ;
+    rdfs:label "enrolment" ;
+    skos:definition "A student's enrolment in a degree program for one semester." ;
+    skos:prefLabel "enrolment" .
+
+:Student_Enrolment_Courses a rdfs:Class ;
+    rdfs:label "course enrolment" ;
+    skos:definition "A course taken as part of a student enrolment." ;
+    skos:prefLabel "course enrolment" .
+
+:Students a rdfs:Class ;
+    rdfs:label "student" ;
+    skos:definition "A student at the school." ;
+    skos:prefLabel "student" .
+
+:Transcript_Contents a rdfs:Class ;
+    rdfs:label "transcript content" ;
+    skos:definition "A course result listed on a transcript." ;
+    skos:prefLabel "transcript content" .
+
+:Transcripts a rdfs:Class ;
+    rdfs:label "transcript" ;
+    skos:definition "An official transcript." ;
+    skos:prefLabel "transcript" .
+
+:Addresses.address_id a rdf:Property ;
+    rdfs:label "address id" ;
+    rdfs:domain :Addresses ;
+    skos:definition "Identifier of an address." ;
+    skos:prefLabel "address id" .
+
+:Addresses.city a rdf:Property ;
+    rdfs:label "city" ;
+    rdfs:domain :Addresses ;
+    skos:definition "City of the address." ;
+    skos:prefLabel "city" .
+
+:Addresses.country a rdf:Property ;
+    rdfs:label "country" ;
+    rdfs:domain :Addresses ;
+    skos:definition "Country of the address." ;
+    skos:prefLabel "country" .
+
+:Addresses.line_1 a rdf:Property ;
+    rdfs:label "address line 1" ;
+    rdfs:domain :Addresses ;
+    skos:altLabel "line" ;
+    skos:definition "First line of the street address." ;
+    skos:prefLabel "address line 1" .
+
+:Addresses.line_2 a rdf:Property ;
+    rdfs:label "address line 2" ;
+    rdfs:domain :Addresses ;
+    skos:altLabel "line" ;
+    skos:definition "Second line of the street address." ;
+    skos:prefLabel "address line 2" .
+
+:Addresses.line_3 a rdf:Property ;
+    rdfs:label "address line 3" ;
+    rdfs:domain :Addresses ;
+    skos:altLabel "line" ;
+    skos:definition "Third line of the street address." ;
+    skos:prefLabel "address line 3" .
+
+:Addresses.other_address_details a rdf:Property ;
+    rdfs:label "other details" ;
+    rdfs:domain :Addresses ;
+    skos:altLabel "details",
+        "other details" ;
+    skos:definition "Any other note about the address." ;
+    skos:prefLabel "other details" .
+
+:Addresses.state_province_county a rdf:Property ;
+    rdfs:label "state" ;
+    rdfs:domain :Addresses ;
+    skos:altLabel "state" ;
+    skos:definition "State, province, or county of the address." ;
+    skos:prefLabel "state" .
+
+:Addresses.zip_postcode a rdf:Property ;
+    rdfs:label "zip code" ;
+    rdfs:domain :Addresses ;
+    skos:altLabel "zip" ;
+    skos:definition "Postal code of the address." ;
+    skos:prefLabel "zip code" .
+
+:Courses.course_description a rdf:Property ;
+    rdfs:label "course description" ;
+    rdfs:domain :Courses ;
+    skos:altLabel "description" ;
+    skos:definition "Description of the course." ;
+    skos:prefLabel "course description" .
+
+:Courses.course_id a rdf:Property ;
+    rdfs:label "course id" ;
+    rdfs:domain :Courses ;
+    skos:definition "Identifier of a course." ;
+    skos:prefLabel "course id" .
+
+:Courses.course_name a rdf:Property ;
+    rdfs:label "course name" ;
+    rdfs:domain :Courses ;
+    skos:altLabel "name" ;
+    skos:definition "Name of the course." ;
+    skos:prefLabel "course name" .
+
+:Courses.other_details a rdf:Property ;
+    rdfs:label "other details" ;
+    rdfs:domain :Courses ;
+    skos:altLabel "details",
+        "other details" ;
+    skos:definition "Any other note about the course." ;
+    skos:prefLabel "other details" .
+
+:Degree_Programs.degree_program_id a rdf:Property ;
+    rdfs:label "degree program id" ;
+    rdfs:domain :Degree_Programs ;
+    skos:definition "Identifier of a degree program." ;
+    skos:prefLabel "degree program id" .
+
+:Degree_Programs.degree_summary_description a rdf:Property ;
+    rdfs:label "degree description" ;
+    rdfs:domain :Degree_Programs ;
+    skos:altLabel "description" ;
+    skos:definition "Description of the degree program." ;
+    skos:prefLabel "degree description" .
+
+:Degree_Programs.degree_summary_name a rdf:Property ;
+    rdfs:label "degree name" ;
+    rdfs:domain :Degree_Programs ;
+    skos:altLabel "degree",
+        "name" ;
+    skos:definition "Short name of the degree, such as Bachelor or Master." ;
+    skos:prefLabel "degree name" .
+
+:Degree_Programs.department_id a owl:ObjectProperty ;
+    rdfs:label "department" ;
+    rdfs:domain :Degree_Programs ;
+    rdfs:range :Departments ;
+    skos:definition "Department that offers the degree." ;
+    skos:prefLabel "department" .
+
+:Degree_Programs.other_details a rdf:Property ;
+    rdfs:label "other details" ;
+    rdfs:domain :Degree_Programs ;
+    skos:altLabel "details",
+        "other details" ;
+    skos:definition "Any other note about the degree program." ;
+    skos:prefLabel "other details" .
+
+:Departments.department_description a rdf:Property ;
+    rdfs:label "department description" ;
+    rdfs:domain :Departments ;
+    skos:altLabel "description" ;
+    skos:definition "Description of the department." ;
+    skos:prefLabel "department description" .
+
+:Departments.department_id a rdf:Property ;
+    rdfs:label "department id" ;
+    rdfs:domain :Departments ;
+    skos:definition "Identifier of a department." ;
+    skos:prefLabel "department id" .
+
+:Departments.department_name a rdf:Property ;
+    rdfs:label "department name" ;
+    rdfs:domain :Departments ;
+    skos:altLabel "name" ;
+    skos:definition "Name of the department." ;
+    skos:prefLabel "department name" .
+
+:Departments.other_details a rdf:Property ;
+    rdfs:label "other details" ;
+    rdfs:domain :Departments ;
+    skos:altLabel "details",
+        "other details" ;
+    skos:definition "Any other note about the department." ;
+    skos:prefLabel "other details" .
+
+:Sections.course_id a owl:ObjectProperty ;
+    rdfs:label "course" ;
+    rdfs:domain :Sections ;
+    rdfs:range :Courses ;
+    skos:definition "Course this section belongs to." ;
+    skos:prefLabel "course" .
+
+:Sections.other_details a rdf:Property ;
+    rdfs:label "other details" ;
+    rdfs:domain :Sections ;
+    skos:altLabel "details",
+        "other details" ;
+    skos:definition "Any other note about the section." ;
+    skos:prefLabel "other details" .
+
+:Sections.section_description a rdf:Property ;
+    rdfs:label "section description" ;
+    rdfs:domain :Sections ;
+    skos:altLabel "description" ;
+    skos:definition "Description of the section." ;
+    skos:prefLabel "section description" .
+
+:Sections.section_id a rdf:Property ;
+    rdfs:label "section id" ;
+    rdfs:domain :Sections ;
+    skos:definition "Identifier of a section." ;
+    skos:prefLabel "section id" .
+
+:Sections.section_name a rdf:Property ;
+    rdfs:label "section name" ;
+    rdfs:domain :Sections ;
+    skos:altLabel "name" ;
+    skos:definition "Name of the section." ;
+    skos:prefLabel "section name" .
+
+:Semesters.other_details a rdf:Property ;
+    rdfs:label "other details" ;
+    rdfs:domain :Semesters ;
+    skos:altLabel "details",
+        "other details" ;
+    skos:definition "Any other note about the semester." ;
+    skos:prefLabel "other details" .
+
+:Semesters.semester_description a rdf:Property ;
+    rdfs:label "semester description" ;
+    rdfs:domain :Semesters ;
+    skos:altLabel "description" ;
+    skos:definition "Description of the semester." ;
+    skos:prefLabel "semester description" .
+
+:Semesters.semester_id a rdf:Property ;
+    rdfs:label "semester id" ;
+    rdfs:domain :Semesters ;
+    skos:definition "Identifier of a semester." ;
+    skos:prefLabel "semester id" .
+
+:Semesters.semester_name a rdf:Property ;
+    rdfs:label "semester name" ;
+    rdfs:domain :Semesters ;
+    skos:altLabel "name" ;
+    skos:definition "Name of the semester." ;
+    skos:prefLabel "semester name" .
+
+:Student_Enrolment.degree_program_id a owl:ObjectProperty ;
+    rdfs:label "degree program" ;
+    rdfs:domain :Student_Enrolment ;
+    rdfs:range :Degree_Programs ;
+    skos:definition "Degree program the student enrolled in." ;
+    skos:prefLabel "degree program" .
+
+:Student_Enrolment.other_details a rdf:Property ;
+    rdfs:label "other details" ;
+    rdfs:domain :Student_Enrolment ;
+    skos:altLabel "details",
+        "other details" ;
+    skos:definition "Any other note about the enrolment." ;
+    skos:prefLabel "other details" .
+
+:Student_Enrolment.semester_id a owl:ObjectProperty ;
+    rdfs:label "semester" ;
+    rdfs:domain :Student_Enrolment ;
+    rdfs:range :Semesters ;
+    skos:definition "Semester of this enrolment." ;
+    skos:prefLabel "semester" .
+
+:Student_Enrolment.student_enrolment_id a rdf:Property ;
+    rdfs:label "enrolment id" ;
+    rdfs:domain :Student_Enrolment ;
+    skos:definition "Identifier of a student enrolment." ;
+    skos:prefLabel "enrolment id" .
+
+:Student_Enrolment.student_id a owl:ObjectProperty ;
+    rdfs:label "student" ;
+    rdfs:domain :Student_Enrolment ;
+    rdfs:range :Students ;
+    skos:definition "Student who enrolled." ;
+    skos:prefLabel "student" .
+
+:Student_Enrolment_Courses.course_id a owl:ObjectProperty ;
+    rdfs:label "course" ;
+    rdfs:domain :Student_Enrolment_Courses ;
+    rdfs:range :Courses ;
+    skos:definition "Course the student enrolled in." ;
+    skos:prefLabel "course" .
+
+:Student_Enrolment_Courses.student_course_id a rdf:Property ;
+    rdfs:label "course enrolment id" ;
+    rdfs:domain :Student_Enrolment_Courses ;
+    skos:definition "Identifier of a course enrolment." ;
+    skos:prefLabel "course enrolment id" .
+
+:Student_Enrolment_Courses.student_enrolment_id a owl:ObjectProperty ;
+    rdfs:label "enrolment" ;
+    rdfs:domain :Student_Enrolment_Courses ;
+    rdfs:range :Student_Enrolment ;
+    skos:definition "Degree enrolment this course belongs to." ;
+    skos:prefLabel "enrolment" .
+
+:Students.cell_mobile_number a rdf:Property ;
+    rdfs:label "cell phone" ;
+    rdfs:domain :Students ;
+    skos:altLabel "phone" ;
+    skos:definition "Student's mobile phone number." ;
+    skos:prefLabel "cell phone" .
+
+:Students.current_address_id a owl:ObjectProperty ;
+    rdfs:label "current address" ;
+    rdfs:domain :Students ;
+    rdfs:range :Addresses ;
+    skos:altLabel "address" ;
+    skos:definition "Address where the student lives now." ;
+    skos:prefLabel "current address" .
+
+:Students.date_first_registered a rdf:Property ;
+    rdfs:label "registration date" ;
+    rdfs:domain :Students ;
+    skos:altLabel "date",
+        "most recent",
+        "registered on" ;
+    skos:definition "Date the student first registered at the school." ;
+    skos:prefLabel "registration date" .
+
+:Students.date_left a rdf:Property ;
+    rdfs:label "leaving date" ;
+    rdfs:domain :Students ;
+    skos:altLabel "date",
+        "left on",
+        "most recent" ;
+    skos:definition "Date the student left the school." ;
+    skos:prefLabel "leaving date" .
+
+:Students.email_address a rdf:Property ;
+    rdfs:label "email" ;
+    rdfs:domain :Students ;
+    skos:definition "Student's email address." ;
+    skos:prefLabel "email" .
+
+:Students.first_name a rdf:Property ;
+    rdfs:label "first name" ;
+    rdfs:domain :Students ;
+    skos:altLabel "name" ;
+    skos:definition "Student's given name." ;
+    skos:prefLabel "first name" .
+
+:Students.last_name a rdf:Property ;
+    rdfs:label "last name" ;
+    rdfs:domain :Students ;
+    skos:altLabel "name" ;
+    skos:definition "Student's family name." ;
+    skos:prefLabel "last name" .
+
+:Students.middle_name a rdf:Property ;
+    rdfs:label "middle name" ;
+    rdfs:domain :Students ;
+    skos:altLabel "name" ;
+    skos:definition "Student's middle name." ;
+    skos:prefLabel "middle name" .
+
+:Students.other_student_details a rdf:Property ;
+    rdfs:label "other details" ;
+    rdfs:domain :Students ;
+    skos:altLabel "details",
+        "other details" ;
+    skos:definition "Any other note about the student." ;
+    skos:prefLabel "other details" .
+
+:Students.permanent_address_id a owl:ObjectProperty ;
+    rdfs:label "permanent address" ;
+    rdfs:domain :Students ;
+    rdfs:range :Addresses ;
+    skos:altLabel "address" ;
+    skos:definition "Address the student keeps as a permanent home." ;
+    skos:prefLabel "permanent address" .
+
+:Students.ssn a rdf:Property ;
+    rdfs:label "ssn" ;
+    rdfs:domain :Students ;
+    skos:definition "Student's social security number." ;
+    skos:prefLabel "ssn" .
+
+:Students.student_id a rdf:Property ;
+    rdfs:label "student id" ;
+    rdfs:domain :Students ;
+    skos:definition "Identifier of a student." ;
+    skos:prefLabel "student id" .
+
+:Transcript_Contents.student_course_id a owl:ObjectProperty ;
+    rdfs:label "course enrolment" ;
+    rdfs:domain :Transcript_Contents ;
+    rdfs:range :Student_Enrolment_Courses ;
+    skos:definition "Course enrolment shown on the transcript." ;
+    skos:prefLabel "course enrolment" .
+
+:Transcript_Contents.transcript_id a owl:ObjectProperty ;
+    rdfs:label "transcript" ;
+    rdfs:domain :Transcript_Contents ;
+    rdfs:range :Transcripts ;
+    skos:definition "Transcript that lists this course result." ;
+    skos:prefLabel "transcript" .
+
+:Transcripts.other_details a rdf:Property ;
+    rdfs:label "other details" ;
+    rdfs:domain :Transcripts ;
+    skos:altLabel "details",
+        "other details" ;
+    skos:definition "Any other note about the transcript." ;
+    skos:prefLabel "other details" .
+
+:Transcripts.transcript_date a rdf:Property ;
+    rdfs:label "transcript date" ;
+    rdfs:domain :Transcripts ;
+    skos:altLabel "date",
+        "most recent" ;
+    skos:definition "Date the transcript was released." ;
+    skos:prefLabel "transcript date" .
+
+:Transcripts.transcript_id a rdf:Property ;
+    rdfs:label "transcript id" ;
+    rdfs:domain :Transcripts ;
+    skos:definition "Identifier of a transcript." ;
+    skos:prefLabel "transcript id" .
+

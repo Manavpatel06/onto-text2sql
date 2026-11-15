@@ -1,0 +1,327 @@
+@prefix : <http://example.org/wta_1#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+:matches a rdfs:Class ;
+    rdfs:label "match" ;
+    skos:definition "One WTA tennis match." ;
+    skos:prefLabel "match" .
+
+:players a rdfs:Class ;
+    rdfs:label "player" ;
+    skos:definition "A tennis player." ;
+    skos:prefLabel "player" .
+
+:rankings a rdfs:Class ;
+    rdfs:label "ranking list" ;
+    skos:definition "A player's ranking on a given date." ;
+    skos:prefLabel "ranking list" .
+
+:matches.best_of a rdf:Property ;
+    rdfs:label "best of" ;
+    rdfs:domain :matches ;
+    skos:definition "Maximum number of sets in the match." ;
+    skos:prefLabel "best of" .
+
+:matches.draw_size a rdf:Property ;
+    rdfs:label "draw size" ;
+    rdfs:domain :matches ;
+    skos:definition "Number of players in the tournament draw." ;
+    skos:prefLabel "draw size" .
+
+:matches.loser_age a rdf:Property ;
+    rdfs:label "loser age" ;
+    rdfs:domain :matches ;
+    skos:altLabel "age" ;
+    skos:definition "Age of the player who lost the match." ;
+    skos:prefLabel "loser age" .
+
+:matches.loser_entry a rdf:Property ;
+    rdfs:label "loser entry" ;
+    rdfs:domain :matches ;
+    skos:altLabel "entry" ;
+    skos:definition "How the loser entered the tournament." ;
+    skos:prefLabel "loser entry" .
+
+:matches.loser_hand a rdf:Property ;
+    rdfs:label "loser hand" ;
+    rdfs:domain :matches ;
+    skos:altLabel "hand" ;
+    skos:definition "Playing hand of the loser." ;
+    skos:prefLabel "loser hand" .
+
+:matches.loser_ht a rdf:Property ;
+    rdfs:label "loser height" ;
+    rdfs:domain :matches ;
+    skos:altLabel "height" ;
+    skos:definition "Height of the loser." ;
+    skos:prefLabel "loser height" .
+
+:matches.loser_id a owl:ObjectProperty ;
+    rdfs:label "loser" ;
+    rdfs:domain :matches ;
+    rdfs:range :players ;
+    skos:definition "Player who lost the match." ;
+    skos:prefLabel "loser" .
+
+:matches.loser_ioc a rdf:Property ;
+    rdfs:label "loser country" ;
+    rdfs:domain :matches ;
+    skos:altLabel "country" ;
+    skos:definition "Country code of the loser." ;
+    skos:prefLabel "loser country" .
+
+:matches.loser_name a rdf:Property ;
+    rdfs:label "loser name" ;
+    rdfs:domain :matches ;
+    skos:altLabel "name" ;
+    skos:definition "Name of the player who lost the match." ;
+    skos:prefLabel "loser name" .
+
+:matches.loser_rank a rdf:Property ;
+    rdfs:label "loser rank" ;
+    rdfs:domain :matches ;
+    skos:altLabel "best",
+        "highest",
+        "rank" ;
+    skos:definition "Ranking of the loser at the time of the match. A smaller number is a better rank." ;
+    skos:prefLabel "loser rank" .
+
+:matches.loser_rank_points a rdf:Property ;
+    rdfs:label "loser rank points" ;
+    rdfs:domain :matches ;
+    skos:altLabel "points",
+        "rank points",
+        "total" ;
+    skos:definition "Ranking points of the loser at the time of the match." ;
+    skos:prefLabel "loser rank points" .
+
+:matches.loser_seed a rdf:Property ;
+    rdfs:label "loser seed" ;
+    rdfs:domain :matches ;
+    skos:altLabel "seed" ;
+    skos:definition "Seed of the loser." ;
+    skos:prefLabel "loser seed" .
+
+:matches.match_num a rdf:Property ;
+    rdfs:label "match number" ;
+    rdfs:domain :matches ;
+    skos:definition "Number of the match within the tournament." ;
+    skos:prefLabel "match number" .
+
+:matches.minutes a rdf:Property ;
+    rdfs:label "minutes" ;
+    rdfs:domain :matches ;
+    skos:altLabel "duration" ;
+    skos:definition "Length of the match in minutes." ;
+    skos:prefLabel "minutes" .
+
+:matches.round a rdf:Property ;
+    rdfs:label "round" ;
+    rdfs:domain :matches ;
+    skos:definition "Round of the tournament, such as a final or a semifinal." ;
+    skos:prefLabel "round" .
+
+:matches.score a rdf:Property ;
+    rdfs:label "score" ;
+    rdfs:domain :matches ;
+    skos:definition "Set score of the match." ;
+    skos:prefLabel "score" .
+
+:matches.surface a rdf:Property ;
+    rdfs:label "surface" ;
+    rdfs:domain :matches ;
+    skos:definition "Court surface, such as hard, clay, or grass." ;
+    skos:prefLabel "surface" .
+
+:matches.tourney_date a rdf:Property ;
+    rdfs:label "tournament date" ;
+    rdfs:domain :matches ;
+    skos:altLabel "date",
+        "most recent" ;
+    skos:definition "Date the tournament started." ;
+    skos:prefLabel "tournament date" .
+
+:matches.tourney_id a rdf:Property ;
+    rdfs:label "tournament id" ;
+    rdfs:domain :matches ;
+    skos:definition "Identifier of the tournament." ;
+    skos:prefLabel "tournament id" .
+
+:matches.tourney_level a rdf:Property ;
+    rdfs:label "tournament level" ;
+    rdfs:domain :matches ;
+    skos:definition "Level of the tournament." ;
+    skos:prefLabel "tournament level" .
+
+:matches.tourney_name a rdf:Property ;
+    rdfs:label "tournament name" ;
+    rdfs:domain :matches ;
+    skos:altLabel "tournament" ;
+    skos:definition "Name of the tournament." ;
+    skos:prefLabel "tournament name" .
+
+:matches.winner_age a rdf:Property ;
+    rdfs:label "winner age" ;
+    rdfs:domain :matches ;
+    skos:altLabel "age" ;
+    skos:definition "Age of the player who won the match." ;
+    skos:prefLabel "winner age" .
+
+:matches.winner_entry a rdf:Property ;
+    rdfs:label "winner entry" ;
+    rdfs:domain :matches ;
+    skos:altLabel "entry" ;
+    skos:definition "How the winner entered the tournament." ;
+    skos:prefLabel "winner entry" .
+
+:matches.winner_hand a rdf:Property ;
+    rdfs:label "winner hand" ;
+    rdfs:domain :matches ;
+    skos:altLabel "hand" ;
+    skos:definition "Playing hand of the winner." ;
+    skos:prefLabel "winner hand" .
+
+:matches.winner_ht a rdf:Property ;
+    rdfs:label "winner height" ;
+    rdfs:domain :matches ;
+    skos:altLabel "height" ;
+    skos:definition "Height of the winner." ;
+    skos:prefLabel "winner height" .
+
+:matches.winner_id a owl:ObjectProperty ;
+    rdfs:label "winner" ;
+    rdfs:domain :matches ;
+    rdfs:range :players ;
+    skos:definition "Player who won the match." ;
+    skos:prefLabel "winner" .
+
+:matches.winner_ioc a rdf:Property ;
+    rdfs:label "winner country" ;
+    rdfs:domain :matches ;
+    skos:altLabel "country" ;
+    skos:definition "Country code of the winner." ;
+    skos:prefLabel "winner country" .
+
+:matches.winner_name a rdf:Property ;
+    rdfs:label "winner name" ;
+    rdfs:domain :matches ;
+    skos:altLabel "name" ;
+    skos:definition "Name of the player who won the match." ;
+    skos:prefLabel "winner name" .
+
+:matches.winner_rank a rdf:Property ;
+    rdfs:label "winner rank" ;
+    rdfs:domain :matches ;
+    skos:altLabel "best",
+        "highest",
+        "rank" ;
+    skos:definition "Ranking of the winner at the time of the match. A smaller number is a better rank." ;
+    skos:prefLabel "winner rank" .
+
+:matches.winner_rank_points a rdf:Property ;
+    rdfs:label "winner rank points" ;
+    rdfs:domain :matches ;
+    skos:altLabel "points",
+        "rank points",
+        "total" ;
+    skos:definition "Ranking points of the winner at the time of the match." ;
+    skos:prefLabel "winner rank points" .
+
+:matches.winner_seed a rdf:Property ;
+    rdfs:label "winner seed" ;
+    rdfs:domain :matches ;
+    skos:altLabel "seed" ;
+    skos:definition "Seed of the winner." ;
+    skos:prefLabel "winner seed" .
+
+:matches.year a rdf:Property ;
+    rdfs:label "year" ;
+    rdfs:domain :matches ;
+    skos:definition "Year the match was played." ;
+    skos:prefLabel "year" .
+
+:players.birth_date a rdf:Property ;
+    rdfs:label "birth date" ;
+    rdfs:domain :players ;
+    skos:altLabel "born on",
+        "date",
+        "most recent" ;
+    skos:definition "Date the player was born." ;
+    skos:prefLabel "birth date" .
+
+:players.country_code a rdf:Property ;
+    rdfs:label "country code" ;
+    rdfs:domain :players ;
+    skos:altLabel "country" ;
+    skos:definition "Country the player represents." ;
+    skos:prefLabel "country code" .
+
+:players.first_name a rdf:Property ;
+    rdfs:label "first name" ;
+    rdfs:domain :players ;
+    skos:altLabel "name" ;
+    skos:definition "Player's given name." ;
+    skos:prefLabel "first name" .
+
+:players.hand a rdf:Property ;
+    rdfs:label "playing hand" ;
+    rdfs:domain :players ;
+    skos:altLabel "hand" ;
+    skos:definition "Playing hand of the player." ;
+    skos:prefLabel "playing hand" .
+
+:players.last_name a rdf:Property ;
+    rdfs:label "last name" ;
+    rdfs:domain :players ;
+    skos:altLabel "name" ;
+    skos:definition "Player's family name." ;
+    skos:prefLabel "last name" .
+
+:players.player_id a rdf:Property ;
+    rdfs:label "player id" ;
+    rdfs:domain :players ;
+    skos:definition "Identifier of a player." ;
+    skos:prefLabel "player id" .
+
+:rankings.player_id a owl:ObjectProperty ;
+    rdfs:label "player" ;
+    rdfs:domain :rankings ;
+    rdfs:range :players ;
+    skos:definition "Player this ranking belongs to." ;
+    skos:prefLabel "player" .
+
+:rankings.ranking a rdf:Property ;
+    rdfs:label "ranking" ;
+    rdfs:domain :rankings ;
+    skos:altLabel "best",
+        "highest",
+        "rank" ;
+    skos:definition "Official ranking position. A smaller number is a better rank." ;
+    skos:prefLabel "ranking" .
+
+:rankings.ranking_date a rdf:Property ;
+    rdfs:label "ranking date" ;
+    rdfs:domain :rankings ;
+    skos:altLabel "date",
+        "most recent" ;
+    skos:definition "Date this ranking was published." ;
+    skos:prefLabel "ranking date" .
+
+:rankings.ranking_points a rdf:Property ;
+    rdfs:label "ranking points" ;
+    rdfs:domain :rankings ;
+    skos:altLabel "points",
+        "rank points",
+        "total" ;
+    skos:definition "Ranking points on this date." ;
+    skos:prefLabel "ranking points" .
+
+:rankings.tours a rdf:Property ;
+    rdfs:label "tours" ;
+    rdfs:domain :rankings ;
+    skos:definition "Number of tours associated with this ranking row." ;
+    skos:prefLabel "tours" .
+

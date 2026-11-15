@@ -1,0 +1,58 @@
+table,column,pref_label,alt_labels,definition
+Breeds,,breed list,,A kind of dog.
+Breeds,breed_code,breed code,,Code that identifies a breed.
+Breeds,breed_name,breed name,breed|name,Name of the dog breed.
+Charges,,charge,,A fee the kennel can bill.
+Charges,charge_id,charge id,,Identifier of a charge type.
+Charges,charge_type,charge type,,"Kind of charge, such as accommodation or drugs."
+Charges,charge_amount,charge amount,amount|total|cost,Money charged for this charge type.
+Dogs,,dog,,A dog staying at the kennel.
+Dogs,dog_id,dog id,,Identifier of a dog.
+Dogs,owner_id,owner,,Owner of the dog.
+Dogs,abandoned_yn,abandoned,,Whether the dog was abandoned. 1 means yes and 0 means no.
+Dogs,breed_code,breed code,,Breed of the dog.
+Dogs,size_code,size code,,Size category of the dog.
+Dogs,name,dog name,name,Name of the dog.
+Dogs,age,age,,Age of the dog.
+Dogs,date_of_birth,birth date,date|born on,Date the dog was born.
+Dogs,gender,gender,,Sex of the dog.
+Dogs,weight,weight,,Weight of the dog.
+Dogs,date_arrived,arrival date,date|arrived on|most recent,Date the dog arrived at the kennel.
+Dogs,date_adopted,adoption date,date|adopted on|most recent,Date the dog was adopted by an owner.
+Dogs,date_departed,departure date,date|left on|departed|most recent,Date the dog left the kennel.
+Owners,,dog owner,,A person who owns a dog at the kennel.
+Owners,owner_id,owner id,,Identifier of an owner.
+Owners,first_name,first name,name|first name,Owner's given name.
+Owners,last_name,last name,name|last name,Owner's family name.
+Owners,street,street,street|address,Street where the owner lives.
+Owners,city,city,city,City where the owner lives.
+Owners,state,state,state,State where the owner lives.
+Owners,zip_code,zip code,zip,Postal code of the owner.
+Owners,email_address,email,email,Email address of the owner.
+Owners,home_phone,home phone,phone,Owner's home phone number.
+Owners,cell_number,cell phone,phone|cell,Owner's cell phone number.
+Professionals,,kennel professional,,A person who treats dogs at the kennel.
+Professionals,professional_id,professional id,,Identifier of a professional.
+Professionals,role_code,professional role,role,Job role of the professional.
+Professionals,first_name,first name,name|first name,Professional's given name.
+Professionals,street,street,street|address,Street where the professional lives.
+Professionals,city,city,city,City where the professional lives.
+Professionals,state,state,state,State where the professional lives.
+Professionals,zip_code,zip code,zip,Postal code of the professional.
+Professionals,last_name,last name,name|last name,Professional's family name.
+Professionals,email_address,email,email,Email address of the professional.
+Professionals,home_phone,home phone,phone,Professional's home phone number.
+Professionals,cell_number,cell phone,phone|cell,Professional's cell phone number.
+Sizes,,size list,,A size category for dogs.
+Sizes,size_code,size code,,Code for a dog size.
+Sizes,size_description,size description,size,"Description of a dog size, such as small or large."
+Treatment_Types,,treatment type,,A kind of treatment the kennel offers.
+Treatment_Types,treatment_type_code,treatment type code,,Code for a kind of treatment.
+Treatment_Types,treatment_type_description,treatment description,treatment,Description of a kind of treatment.
+Treatments,,performed treatment,,One treatment given to a dog by a professional.
+Treatments,treatment_id,treatment id,,Identifier of a treatment.
+Treatments,dog_id,dog,,Dog that received the treatment.
+Treatments,professional_id,professional,,Professional who performed the treatment.
+Treatments,treatment_type_code,treatment type code,,Kind of treatment performed.
+Treatments,date_of_treatment,treatment date,date|treated on|most recent,Date the treatment was performed.
+Treatments,cost_of_treatment,treatment cost,amount|total|cost,Money spent on the treatment.

@@ -1,0 +1,68 @@
+table,column,pref_label,alt_labels,definition
+Addresses,,postal address,,A postal address.
+Addresses,address_id,address id,,Identifier of an address.
+Addresses,line_1,address line 1,line,First line of the street address.
+Addresses,line_2,address line 2,line,Second line of the street address.
+Addresses,line_3,address line 3,line,Third line of the street address.
+Addresses,city,city,,City of the address.
+Addresses,zip_postcode,zip code,zip,Postal code of the address.
+Addresses,state_province_county,state,state,"State, province, or county of the address."
+Addresses,country,country,,Country of the address.
+Addresses,other_address_details,other details,other details|details,Any other note about the address.
+Courses,,course,,A course the school offers.
+Courses,course_id,course id,,Identifier of a course.
+Courses,course_name,course name,name,Name of the course.
+Courses,course_description,course description,description,Description of the course.
+Courses,other_details,other details,other details|details,Any other note about the course.
+Degree_Programs,,degree program,,A degree a department offers.
+Degree_Programs,degree_program_id,degree program id,,Identifier of a degree program.
+Degree_Programs,department_id,department,,Department that offers the degree.
+Degree_Programs,degree_summary_name,degree name,name|degree,"Short name of the degree, such as Bachelor or Master."
+Degree_Programs,degree_summary_description,degree description,description,Description of the degree program.
+Degree_Programs,other_details,other details,other details|details,Any other note about the degree program.
+Departments,,department,,An academic department.
+Departments,department_id,department id,,Identifier of a department.
+Departments,department_name,department name,name,Name of the department.
+Departments,department_description,department description,description,Description of the department.
+Departments,other_details,other details,other details|details,Any other note about the department.
+Sections,,section,,A section of a course.
+Sections,section_id,section id,,Identifier of a section.
+Sections,course_id,course,,Course this section belongs to.
+Sections,section_name,section name,name,Name of the section.
+Sections,section_description,section description,description,Description of the section.
+Sections,other_details,other details,other details|details,Any other note about the section.
+Semesters,,semester,,An academic term.
+Semesters,semester_id,semester id,,Identifier of a semester.
+Semesters,semester_name,semester name,name,Name of the semester.
+Semesters,semester_description,semester description,description,Description of the semester.
+Semesters,other_details,other details,other details|details,Any other note about the semester.
+Student_Enrolment,,enrolment,,A student's enrolment in a degree program for one semester.
+Student_Enrolment,student_enrolment_id,enrolment id,,Identifier of a student enrolment.
+Student_Enrolment,degree_program_id,degree program,,Degree program the student enrolled in.
+Student_Enrolment,semester_id,semester,,Semester of this enrolment.
+Student_Enrolment,student_id,student,,Student who enrolled.
+Student_Enrolment,other_details,other details,other details|details,Any other note about the enrolment.
+Student_Enrolment_Courses,,course enrolment,,A course taken as part of a student enrolment.
+Student_Enrolment_Courses,student_course_id,course enrolment id,,Identifier of a course enrolment.
+Student_Enrolment_Courses,course_id,course,,Course the student enrolled in.
+Student_Enrolment_Courses,student_enrolment_id,enrolment,,Degree enrolment this course belongs to.
+Students,,student,,A student at the school.
+Students,student_id,student id,,Identifier of a student.
+Students,current_address_id,current address,address,Address where the student lives now.
+Students,permanent_address_id,permanent address,address,Address the student keeps as a permanent home.
+Students,first_name,first name,name,Student's given name.
+Students,middle_name,middle name,name,Student's middle name.
+Students,last_name,last name,name,Student's family name.
+Students,cell_mobile_number,cell phone,phone,Student's mobile phone number.
+Students,email_address,email,,Student's email address.
+Students,ssn,ssn,,Student's social security number.
+Students,date_first_registered,registration date,date|registered on|most recent,Date the student first registered at the school.
+Students,date_left,leaving date,date|left on|most recent,Date the student left the school.
+Students,other_student_details,other details,other details|details,Any other note about the student.
+Transcript_Contents,,transcript content,,A course result listed on a transcript.
+Transcript_Contents,student_course_id,course enrolment,,Course enrolment shown on the transcript.
+Transcript_Contents,transcript_id,transcript,,Transcript that lists this course result.
+Transcripts,,transcript,,An official transcript.
+Transcripts,transcript_id,transcript id,,Identifier of a transcript.
+Transcripts,transcript_date,transcript date,date|most recent,Date the transcript was released.
+Transcripts,other_details,other details,other details|details,Any other note about the transcript.

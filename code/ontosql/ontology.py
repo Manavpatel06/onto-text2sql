@@ -15,10 +15,17 @@ Interface other modules rely on (keep these names and types):
 
 from __future__ import annotations
 
+import csv
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from rdflib import Graph, Literal, Namespace, OWL, RDF, RDFS, URIRef
+from rdflib.namespace import SKOS
+
 from .schema import Schema
+
+_CSV_FIELDS = ("table", "column", "pref_label", "alt_labels", "definition")
 
 
 @dataclass
@@ -42,10 +49,15 @@ class Ontology:
     def context_text(self) -> str:
         """Compact text block given to the LLM in configs B-D.
 
-        TODO(Manas): format each entry as
+        One line per entry, for example:
           orders.order_date - "order date" (also: date, purchase date): Date the customer placed the order.
         """
-        raise NotImplementedError
+        lines = []
+        for e in self.entries:
+            also = f" (also: {', '.join(e.alt_labels)})" if e.alt_labels else ""
+            defin = f": {e.definition}" if e.definition else ""
+            lines.append(f'{e.key} - "{e.pref_label}"{also}{defin}')
+        return "\n".join(lines)
 
     def lookup(self, phrase: str) -> list[OntologyEntry]:
         """Entries whose pref_label or any alt_label matches `phrase`.
@@ -53,10 +65,18 @@ class Ontology:
         Matching is case-insensitive on normalized text (lowercase, strip
         punctuation, simple plural -> singular). Ambiguity detection calls this:
         more than one hit means the phrase is ambiguous.
-
-        TODO(Manas)
         """
-        raise NotImplementedError
+        want = _label_forms(phrase)
+        if not want:
+            return []
+        hits = []
+        for entry in self.entries:
+            forms: set[str] = set()
+            for label in (entry.pref_label, *entry.alt_labels):
+                forms |= _label_forms(label)
+            if want & forms:
+                hits.append(entry)
+        return hits
 
 
 def build_turtle(csv_path: str | Path, schema: Schema, out_path: str | Path) -> None:
@@ -66,12 +86,192 @@ def build_turtle(csv_path: str | Path, schema: Schema, out_path: str | Path) -> 
     become object properties, and each column gets skos:prefLabel, skos:altLabel
     and skos:definition. Must fail loudly if the CSV names a table/column that
     is not in `schema`.
-
-    TODO(Manas) - use rdflib; see docs/team/manas.md for the expected output.
     """
-    raise NotImplementedError
+    csv_path, out_path = Path(csv_path), Path(out_path)
+    rows = _read_csv(csv_path)
+    entries = _entries_from_rows(rows, schema)
+    ns = Namespace(f"http://example.org/{schema.db_id}#")
+    graph = Graph()
+    graph.bind("rdf", RDF)
+    graph.bind("rdfs", RDFS)
+    graph.bind("skos", SKOS)
+    graph.bind("owl", OWL)
+    graph.bind("", ns)
+
+    fk_range = {(fk.table, fk.column): fk.ref_table for fk in schema.foreign_keys}
+    tables_seen: set[str] = set()
+
+    def add_class(table: str) -> None:
+        if table in tables_seen:
+            return
+        tables_seen.add(table)
+        graph.add((ns[table], RDF.type, RDFS.Class))
+
+    for entry in entries:
+        add_class(entry.table)
+        if not entry.column:
+            _add_labels(graph, ns[entry.table], entry)
+            continue
+        subject = ns[f"{entry.table}.{entry.column}"]
+        ref = fk_range.get((entry.table, entry.column))
+        if ref:
+            add_class(ref)
+            graph.add((subject, RDF.type, OWL.ObjectProperty))
+            graph.add((subject, RDFS.range, ns[ref]))
+        else:
+            graph.add((subject, RDF.type, RDF.Property))
+        graph.add((subject, RDFS.domain, ns[entry.table]))
+        _add_labels(graph, subject, entry)
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    graph.serialize(destination=out_path, format="turtle")
 
 
 def load_ontology(ttl_path: str | Path, db_id: str) -> Ontology:
-    """Parse a generated .ttl back into an Ontology.  TODO(Manas)"""
-    raise NotImplementedError
+    """Parse a generated .ttl back into an Ontology."""
+    graph = Graph()
+    graph.parse(Path(ttl_path), format="turtle")
+    ns = f"http://example.org/{db_id}#"
+    entries: list[OntologyEntry] = []
+
+    subjects = set(graph.subjects(RDF.type, RDF.Property)) | set(graph.subjects(RDF.type, OWL.ObjectProperty))
+    for subject in subjects:
+        if not isinstance(subject, URIRef) or not str(subject).startswith(ns):
+            continue
+        local = str(subject)[len(ns) :]
+        if "." not in local:
+            continue
+        table, column = local.split(".", 1)
+        entries.append(
+            OntologyEntry(
+                table=table,
+                column=column,
+                pref_label=_literal(graph, subject, SKOS.prefLabel) or column,
+                alt_labels=_literals(graph, subject, SKOS.altLabel),
+                definition=_literal(graph, subject, SKOS.definition),
+            )
+        )
+
+    for subject in graph.subjects(RDF.type, RDFS.Class):
+        if not isinstance(subject, URIRef) or not str(subject).startswith(ns):
+            continue
+        local = str(subject)[len(ns) :]
+        if "." in local:
+            continue
+        pref = _literal(graph, subject, SKOS.prefLabel)
+        if not pref:
+            continue
+        entries.append(
+            OntologyEntry(
+                table=local,
+                column="",
+                pref_label=pref,
+                alt_labels=_literals(graph, subject, SKOS.altLabel),
+                definition=_literal(graph, subject, SKOS.definition),
+            )
+        )
+
+    entries.sort(key=lambda e: (e.table.lower(), e.column.lower(), e.pref_label.lower()))
+    return Ontology(db_id=db_id, entries=entries)
+
+
+def _add_labels(graph: Graph, subject: URIRef, entry: OntologyEntry) -> None:
+    if entry.pref_label:
+        graph.add((subject, SKOS.prefLabel, Literal(entry.pref_label)))
+        graph.add((subject, RDFS.label, Literal(entry.pref_label)))
+    for alt in entry.alt_labels:
+        graph.add((subject, SKOS.altLabel, Literal(alt)))
+    if entry.definition:
+        graph.add((subject, SKOS.definition, Literal(entry.definition)))
+
+
+def _literal(graph: Graph, subject: URIRef, predicate) -> str:
+    values = _literals(graph, subject, predicate)
+    return values[0] if values else ""
+
+
+def _literals(graph: Graph, subject: URIRef, predicate) -> list[str]:
+    return sorted({str(v) for v in graph.objects(subject, predicate) if str(v)})
+
+
+def _read_csv(path: Path) -> list[dict[str, str]]:
+    if not path.exists():
+        raise FileNotFoundError(f"ontology spreadsheet not found: {path}")
+    with path.open(newline="", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError(f"{path} has no header")
+        header = {name.strip(): name for name in reader.fieldnames if name}
+        missing = [name for name in _CSV_FIELDS if name not in header]
+        if missing:
+            raise ValueError(f"{path} is missing columns: {', '.join(missing)}")
+        rows = []
+        for raw in reader:
+            rows.append({name: (raw.get(header[name]) or "").strip() for name in _CSV_FIELDS})
+    return rows
+
+
+def _entries_from_rows(rows: list[dict[str, str]], schema: Schema) -> list[OntologyEntry]:
+    entries: list[OntologyEntry] = []
+    seen: set[tuple[str, str]] = set()
+    for i, row in enumerate(rows, start=2):
+        if not any(row.values()):
+            continue
+        table_name = row["table"]
+        column_name = row["column"]
+        if not table_name:
+            raise ValueError(f"row {i}: table is empty")
+        table = schema.table(table_name)
+        if table is None:
+            raise ValueError(f"row {i}: unknown table {table_name!r}")
+        column = ""
+        if column_name:
+            match = next((c.name for c in table.columns if c.name.lower() == column_name.lower()), None)
+            if match is None:
+                raise ValueError(f"row {i}: unknown column {table.name}.{column_name}")
+            column = match
+        key = (table.name, column)
+        if key in seen:
+            raise ValueError(f"row {i}: duplicate entry for {table.name}.{column or '(table)'}")
+        seen.add(key)
+        alts = [part.strip() for part in row["alt_labels"].split("|") if part.strip()]
+        entries.append(
+            OntologyEntry(
+                table=table.name,
+                column=column,
+                pref_label=row["pref_label"] or (column or table.name),
+                alt_labels=alts,
+                definition=row["definition"],
+            )
+        )
+    return entries
+
+
+def _norm(text: str) -> str:
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _label_forms(text: str) -> set[str]:
+    """Normalized label plus a crude singular form of its last word.
+
+    "dates" and "date" land on the same form, which is what lookup("dates")
+    needs in order to hit a column whose synonym is "date".
+    """
+    base = _norm(text)
+    if not base:
+        return set()
+    forms = {base}
+    parts = base.split(" ")
+    word = parts[-1]
+    stems = set()
+    if len(word) > 3 and word.endswith("ies"):
+        stems.add(word[:-3] + "y")
+    if len(word) > 3 and word.endswith("es"):
+        stems.add(word[:-2])
+    if len(word) > 3 and word.endswith("s") and not word.endswith("ss"):
+        stems.add(word[:-1])
+    for stem in stems:
+        forms.add(" ".join(parts[:-1] + [stem]))
+    return forms

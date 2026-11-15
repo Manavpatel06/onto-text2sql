@@ -9,6 +9,7 @@
   python -m ontosql build-ontology --db <db_id>            CSV -> Turtle in data/ontology/
   python -m ontosql get-spider [--all]                     download Spider into data/spider/
   python -m ontosql models                                 list chat models for the key in .env
+  python -m ontosql demo [--port 7860]                 open the config B demo page
 """
 
 from __future__ import annotations
@@ -157,6 +158,12 @@ def cmd_get_spider(args) -> None:
     get_spider(args.spider_dir, keep="all" if args.all else "dev")
 
 
+def cmd_demo(args) -> None:
+    from .demo_server import serve
+
+    serve(port=args.port)
+
+
 def cmd_models(args) -> None:
     from .llm import list_models
 
@@ -214,6 +221,10 @@ def main(argv=None) -> None:
     p = sub.add_parser("build-ontology")
     p.add_argument("--db", required=True)
     p.set_defaults(fn=cmd_build_ontology)
+
+    p = sub.add_parser("demo", help="open the config B demo page")
+    p.add_argument("--port", type=int, default=7860)
+    p.set_defaults(fn=cmd_demo)
 
     args = ap.parse_args(argv)
     args.fn(args)

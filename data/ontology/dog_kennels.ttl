@@ -1,0 +1,399 @@
+@prefix : <http://example.org/dog_kennels#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+:Breeds a rdfs:Class ;
+    rdfs:label "breed list" ;
+    skos:definition "A kind of dog." ;
+    skos:prefLabel "breed list" .
+
+:Charges a rdfs:Class ;
+    rdfs:label "charge" ;
+    skos:definition "A fee the kennel can bill." ;
+    skos:prefLabel "charge" .
+
+:Dogs a rdfs:Class ;
+    rdfs:label "dog" ;
+    skos:definition "A dog staying at the kennel." ;
+    skos:prefLabel "dog" .
+
+:Owners a rdfs:Class ;
+    rdfs:label "dog owner" ;
+    skos:definition "A person who owns a dog at the kennel." ;
+    skos:prefLabel "dog owner" .
+
+:Professionals a rdfs:Class ;
+    rdfs:label "kennel professional" ;
+    skos:definition "A person who treats dogs at the kennel." ;
+    skos:prefLabel "kennel professional" .
+
+:Sizes a rdfs:Class ;
+    rdfs:label "size list" ;
+    skos:definition "A size category for dogs." ;
+    skos:prefLabel "size list" .
+
+:Treatment_Types a rdfs:Class ;
+    rdfs:label "treatment type" ;
+    skos:definition "A kind of treatment the kennel offers." ;
+    skos:prefLabel "treatment type" .
+
+:Treatments a rdfs:Class ;
+    rdfs:label "performed treatment" ;
+    skos:definition "One treatment given to a dog by a professional." ;
+    skos:prefLabel "performed treatment" .
+
+:Breeds.breed_code a rdf:Property ;
+    rdfs:label "breed code" ;
+    rdfs:domain :Breeds ;
+    skos:definition "Code that identifies a breed." ;
+    skos:prefLabel "breed code" .
+
+:Breeds.breed_name a rdf:Property ;
+    rdfs:label "breed name" ;
+    rdfs:domain :Breeds ;
+    skos:altLabel "breed",
+        "name" ;
+    skos:definition "Name of the dog breed." ;
+    skos:prefLabel "breed name" .
+
+:Charges.charge_amount a rdf:Property ;
+    rdfs:label "charge amount" ;
+    rdfs:domain :Charges ;
+    skos:altLabel "amount",
+        "cost",
+        "total" ;
+    skos:definition "Money charged for this charge type." ;
+    skos:prefLabel "charge amount" .
+
+:Charges.charge_id a rdf:Property ;
+    rdfs:label "charge id" ;
+    rdfs:domain :Charges ;
+    skos:definition "Identifier of a charge type." ;
+    skos:prefLabel "charge id" .
+
+:Charges.charge_type a rdf:Property ;
+    rdfs:label "charge type" ;
+    rdfs:domain :Charges ;
+    skos:definition "Kind of charge, such as accommodation or drugs." ;
+    skos:prefLabel "charge type" .
+
+:Dogs.abandoned_yn a rdf:Property ;
+    rdfs:label "abandoned" ;
+    rdfs:domain :Dogs ;
+    skos:definition "Whether the dog was abandoned. 1 means yes and 0 means no." ;
+    skos:prefLabel "abandoned" .
+
+:Dogs.age a rdf:Property ;
+    rdfs:label "age" ;
+    rdfs:domain :Dogs ;
+    skos:definition "Age of the dog." ;
+    skos:prefLabel "age" .
+
+:Dogs.breed_code a owl:ObjectProperty ;
+    rdfs:label "breed code" ;
+    rdfs:domain :Dogs ;
+    rdfs:range :Breeds ;
+    skos:definition "Breed of the dog." ;
+    skos:prefLabel "breed code" .
+
+:Dogs.date_adopted a rdf:Property ;
+    rdfs:label "adoption date" ;
+    rdfs:domain :Dogs ;
+    skos:altLabel "adopted on",
+        "date",
+        "most recent" ;
+    skos:definition "Date the dog was adopted by an owner." ;
+    skos:prefLabel "adoption date" .
+
+:Dogs.date_arrived a rdf:Property ;
+    rdfs:label "arrival date" ;
+    rdfs:domain :Dogs ;
+    skos:altLabel "arrived on",
+        "date",
+        "most recent" ;
+    skos:definition "Date the dog arrived at the kennel." ;
+    skos:prefLabel "arrival date" .
+
+:Dogs.date_departed a rdf:Property ;
+    rdfs:label "departure date" ;
+    rdfs:domain :Dogs ;
+    skos:altLabel "date",
+        "departed",
+        "left on",
+        "most recent" ;
+    skos:definition "Date the dog left the kennel." ;
+    skos:prefLabel "departure date" .
+
+:Dogs.date_of_birth a rdf:Property ;
+    rdfs:label "birth date" ;
+    rdfs:domain :Dogs ;
+    skos:altLabel "born on",
+        "date" ;
+    skos:definition "Date the dog was born." ;
+    skos:prefLabel "birth date" .
+
+:Dogs.dog_id a rdf:Property ;
+    rdfs:label "dog id" ;
+    rdfs:domain :Dogs ;
+    skos:definition "Identifier of a dog." ;
+    skos:prefLabel "dog id" .
+
+:Dogs.gender a rdf:Property ;
+    rdfs:label "gender" ;
+    rdfs:domain :Dogs ;
+    skos:definition "Sex of the dog." ;
+    skos:prefLabel "gender" .
+
+:Dogs.name a rdf:Property ;
+    rdfs:label "dog name" ;
+    rdfs:domain :Dogs ;
+    skos:altLabel "name" ;
+    skos:definition "Name of the dog." ;
+    skos:prefLabel "dog name" .
+
+:Dogs.owner_id a owl:ObjectProperty ;
+    rdfs:label "owner" ;
+    rdfs:domain :Dogs ;
+    rdfs:range :Owners ;
+    skos:definition "Owner of the dog." ;
+    skos:prefLabel "owner" .
+
+:Dogs.size_code a owl:ObjectProperty ;
+    rdfs:label "size code" ;
+    rdfs:domain :Dogs ;
+    rdfs:range :Sizes ;
+    skos:definition "Size category of the dog." ;
+    skos:prefLabel "size code" .
+
+:Dogs.weight a rdf:Property ;
+    rdfs:label "weight" ;
+    rdfs:domain :Dogs ;
+    skos:definition "Weight of the dog." ;
+    skos:prefLabel "weight" .
+
+:Owners.cell_number a rdf:Property ;
+    rdfs:label "cell phone" ;
+    rdfs:domain :Owners ;
+    skos:altLabel "cell",
+        "phone" ;
+    skos:definition "Owner's cell phone number." ;
+    skos:prefLabel "cell phone" .
+
+:Owners.city a rdf:Property ;
+    rdfs:label "city" ;
+    rdfs:domain :Owners ;
+    skos:altLabel "city" ;
+    skos:definition "City where the owner lives." ;
+    skos:prefLabel "city" .
+
+:Owners.email_address a rdf:Property ;
+    rdfs:label "email" ;
+    rdfs:domain :Owners ;
+    skos:altLabel "email" ;
+    skos:definition "Email address of the owner." ;
+    skos:prefLabel "email" .
+
+:Owners.first_name a rdf:Property ;
+    rdfs:label "first name" ;
+    rdfs:domain :Owners ;
+    skos:altLabel "first name",
+        "name" ;
+    skos:definition "Owner's given name." ;
+    skos:prefLabel "first name" .
+
+:Owners.home_phone a rdf:Property ;
+    rdfs:label "home phone" ;
+    rdfs:domain :Owners ;
+    skos:altLabel "phone" ;
+    skos:definition "Owner's home phone number." ;
+    skos:prefLabel "home phone" .
+
+:Owners.last_name a rdf:Property ;
+    rdfs:label "last name" ;
+    rdfs:domain :Owners ;
+    skos:altLabel "last name",
+        "name" ;
+    skos:definition "Owner's family name." ;
+    skos:prefLabel "last name" .
+
+:Owners.owner_id a rdf:Property ;
+    rdfs:label "owner id" ;
+    rdfs:domain :Owners ;
+    skos:definition "Identifier of an owner." ;
+    skos:prefLabel "owner id" .
+
+:Owners.state a rdf:Property ;
+    rdfs:label "state" ;
+    rdfs:domain :Owners ;
+    skos:altLabel "state" ;
+    skos:definition "State where the owner lives." ;
+    skos:prefLabel "state" .
+
+:Owners.street a rdf:Property ;
+    rdfs:label "street" ;
+    rdfs:domain :Owners ;
+    skos:altLabel "address",
+        "street" ;
+    skos:definition "Street where the owner lives." ;
+    skos:prefLabel "street" .
+
+:Owners.zip_code a rdf:Property ;
+    rdfs:label "zip code" ;
+    rdfs:domain :Owners ;
+    skos:altLabel "zip" ;
+    skos:definition "Postal code of the owner." ;
+    skos:prefLabel "zip code" .
+
+:Professionals.cell_number a rdf:Property ;
+    rdfs:label "cell phone" ;
+    rdfs:domain :Professionals ;
+    skos:altLabel "cell",
+        "phone" ;
+    skos:definition "Professional's cell phone number." ;
+    skos:prefLabel "cell phone" .
+
+:Professionals.city a rdf:Property ;
+    rdfs:label "city" ;
+    rdfs:domain :Professionals ;
+    skos:altLabel "city" ;
+    skos:definition "City where the professional lives." ;
+    skos:prefLabel "city" .
+
+:Professionals.email_address a rdf:Property ;
+    rdfs:label "email" ;
+    rdfs:domain :Professionals ;
+    skos:altLabel "email" ;
+    skos:definition "Email address of the professional." ;
+    skos:prefLabel "email" .
+
+:Professionals.first_name a rdf:Property ;
+    rdfs:label "first name" ;
+    rdfs:domain :Professionals ;
+    skos:altLabel "first name",
+        "name" ;
+    skos:definition "Professional's given name." ;
+    skos:prefLabel "first name" .
+
+:Professionals.home_phone a rdf:Property ;
+    rdfs:label "home phone" ;
+    rdfs:domain :Professionals ;
+    skos:altLabel "phone" ;
+    skos:definition "Professional's home phone number." ;
+    skos:prefLabel "home phone" .
+
+:Professionals.last_name a rdf:Property ;
+    rdfs:label "last name" ;
+    rdfs:domain :Professionals ;
+    skos:altLabel "last name",
+        "name" ;
+    skos:definition "Professional's family name." ;
+    skos:prefLabel "last name" .
+
+:Professionals.professional_id a rdf:Property ;
+    rdfs:label "professional id" ;
+    rdfs:domain :Professionals ;
+    skos:definition "Identifier of a professional." ;
+    skos:prefLabel "professional id" .
+
+:Professionals.role_code a rdf:Property ;
+    rdfs:label "professional role" ;
+    rdfs:domain :Professionals ;
+    skos:altLabel "role" ;
+    skos:definition "Job role of the professional." ;
+    skos:prefLabel "professional role" .
+
+:Professionals.state a rdf:Property ;
+    rdfs:label "state" ;
+    rdfs:domain :Professionals ;
+    skos:altLabel "state" ;
+    skos:definition "State where the professional lives." ;
+    skos:prefLabel "state" .
+
+:Professionals.street a rdf:Property ;
+    rdfs:label "street" ;
+    rdfs:domain :Professionals ;
+    skos:altLabel "address",
+        "street" ;
+    skos:definition "Street where the professional lives." ;
+    skos:prefLabel "street" .
+
+:Professionals.zip_code a rdf:Property ;
+    rdfs:label "zip code" ;
+    rdfs:domain :Professionals ;
+    skos:altLabel "zip" ;
+    skos:definition "Postal code of the professional." ;
+    skos:prefLabel "zip code" .
+
+:Sizes.size_code a rdf:Property ;
+    rdfs:label "size code" ;
+    rdfs:domain :Sizes ;
+    skos:definition "Code for a dog size." ;
+    skos:prefLabel "size code" .
+
+:Sizes.size_description a rdf:Property ;
+    rdfs:label "size description" ;
+    rdfs:domain :Sizes ;
+    skos:altLabel "size" ;
+    skos:definition "Description of a dog size, such as small or large." ;
+    skos:prefLabel "size description" .
+
+:Treatment_Types.treatment_type_code a rdf:Property ;
+    rdfs:label "treatment type code" ;
+    rdfs:domain :Treatment_Types ;
+    skos:definition "Code for a kind of treatment." ;
+    skos:prefLabel "treatment type code" .
+
+:Treatment_Types.treatment_type_description a rdf:Property ;
+    rdfs:label "treatment description" ;
+    rdfs:domain :Treatment_Types ;
+    skos:altLabel "treatment" ;
+    skos:definition "Description of a kind of treatment." ;
+    skos:prefLabel "treatment description" .
+
+:Treatments.cost_of_treatment a rdf:Property ;
+    rdfs:label "treatment cost" ;
+    rdfs:domain :Treatments ;
+    skos:altLabel "amount",
+        "cost",
+        "total" ;
+    skos:definition "Money spent on the treatment." ;
+    skos:prefLabel "treatment cost" .
+
+:Treatments.date_of_treatment a rdf:Property ;
+    rdfs:label "treatment date" ;
+    rdfs:domain :Treatments ;
+    skos:altLabel "date",
+        "most recent",
+        "treated on" ;
+    skos:definition "Date the treatment was performed." ;
+    skos:prefLabel "treatment date" .
+
+:Treatments.dog_id a owl:ObjectProperty ;
+    rdfs:label "dog" ;
+    rdfs:domain :Treatments ;
+    rdfs:range :Dogs ;
+    skos:definition "Dog that received the treatment." ;
+    skos:prefLabel "dog" .
+
+:Treatments.professional_id a owl:ObjectProperty ;
+    rdfs:label "professional" ;
+    rdfs:domain :Treatments ;
+    rdfs:range :Professionals ;
+    skos:definition "Professional who performed the treatment." ;
+    skos:prefLabel "professional" .
+
+:Treatments.treatment_id a rdf:Property ;
+    rdfs:label "treatment id" ;
+    rdfs:domain :Treatments ;
+    skos:definition "Identifier of a treatment." ;
+    skos:prefLabel "treatment id" .
+
+:Treatments.treatment_type_code a owl:ObjectProperty ;
+    rdfs:label "treatment type code" ;
+    rdfs:domain :Treatments ;
+    rdfs:range :Treatment_Types ;
+    skos:definition "Kind of treatment performed." ;
+    skos:prefLabel "treatment type code" .
+
