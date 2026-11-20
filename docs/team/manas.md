@@ -1,5 +1,7 @@
 # Manas: database selection, schema extraction, ontology spreadsheet, Turtle conversion
 
+**Status (Nov 20):** Ontology spreadsheets and Turtle for all three databases are done, and `ontology.py` is implemented and tested. Remaining: the Datasets and ontology parts of the demo slides and final report; optionally review synonyms behind the few clear Spider questions the ambiguity rule still flags (`tables/ambiguity_detection.md`).
+
 Your output unblocks Vian, Saniya and Vatsal, so aim to finish first.
 
 ## Context

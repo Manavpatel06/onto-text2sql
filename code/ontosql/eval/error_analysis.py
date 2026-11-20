@@ -20,6 +20,7 @@ CATEGORIES = [
     "unresolved_ambiguity",
     "unnecessary_clarification",
     "repair_failure",
+    "projection",  # right columns and filters, wrong output shape (extra/missing columns, DISTINCT)
     "other",
 ]
 

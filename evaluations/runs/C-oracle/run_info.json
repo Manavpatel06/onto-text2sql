@@ -1,0 +1,13 @@
+{
+  "config": "C",
+  "tag": "oracle",
+  "model": "qwen38-27b",
+  "dataset": "stress",
+  "n": 40,
+  "dbs": null,
+  "simulated_user": {
+    "mode": "oracle",
+    "vague_rate": 0.0,
+    "seed": 0
+  }
+}

@@ -79,13 +79,26 @@ def _csv(path: Path, headers: list[str], rows: list[list[str]]) -> None:
         w.writerows(rows)
 
 
-def load_runs(runs_dir: str | Path) -> dict:
+def load_runs(runs_dir: str | Path, include_tagged: bool = False) -> dict:
+    """Scored runs keyed by folder name: A-D, plus tagged variants (C-oracle, ...) if asked."""
     runs = {}
-    for cfg in sorted(CONFIG_NAMES):
-        f = Path(runs_dir) / cfg / "scored.jsonl"
+    root = Path(runs_dir)
+    names = sorted(CONFIG_NAMES)
+    if include_tagged and root.exists():
+        names += sorted(p.name for p in root.iterdir() if p.is_dir() and "-" in p.name)
+    for name in names:
+        f = root / name / "scored.jsonl"
         if f.exists():
-            runs[cfg] = load_scored(f)
+            runs[name] = load_scored(f)
     return runs
+
+
+USER_VARIANTS = {
+    "wrong": "wrong reading (control)",
+    "vague20": "realistic, 20% vague replies",
+    "": "realistic (main result)",
+    "oracle": "oracle reading (upper bound)",
+}
 
 
 def build_tables(runs_dir: str | Path, out_dir: str | Path) -> dict:
@@ -144,6 +157,21 @@ def build_tables(runs_dir: str | Path, out_dir: str | Path) -> dict:
     if r3:
         (out / "comparisons.md").write_text(_md(h3, r3))
         _csv(out / "comparisons.csv", h3, r3)
+
+    # simulated-user controls: same config, different user behaviour
+    tagged = load_runs(runs_dir, include_tagged=True)
+    h5 = ["Config", "Simulated user", "n", "EX", "EX (ambig.)", "EX (clear)", "Asked"]
+    r5 = []
+    for cfg in ("C", "D"):
+        for tag, label in USER_VARIANTS.items():
+            name = f"{cfg}-{tag}" if tag else cfg
+            if name in tagged and (tag or any(f"{cfg}-{t}" in tagged for t in USER_VARIANTS if t)):
+                sm = summarize(tagged[name])
+                asked = sum(s.prediction.asked_clarification for s in tagged[name]) / max(1, sm["n"])
+                r5.append([cfg, label, str(sm["n"]), _fmt(sm["ex"]), _fmt(sm["ex_ambiguous"]), _fmt(sm["ex_clear"]), _fmt(asked)])
+    if r5:
+        (out / "simulated_user_controls.md").write_text(_md(h5, r5))
+        _csv(out / "simulated_user_controls.csv", h5, r5)
 
     # error categories (from hand-labelled sheets)
     sheet = Path(runs_dir).parent / "error_analysis" / "errors_labelled.csv"

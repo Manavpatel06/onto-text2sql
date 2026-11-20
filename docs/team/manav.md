@@ -1,5 +1,7 @@
 # Manav: direct baseline, evaluation pipeline, result tables
 
+**Status (Nov 20):** All runs are scored and the tables are in `evaluations/tables/` and `evaluations/tables_spider/`, plus the classical baselines (`ontosql linking`). Remaining: coordinate error labelling (`error_analysis/errors.csv`) and write the Evaluations section of the report.
+
 ## Status: implemented and tested
 
 | File | What it does |

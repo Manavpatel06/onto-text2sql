@@ -1,0 +1,13 @@
+{
+  "config": "C",
+  "tag": "vague20",
+  "model": "qwen38-27b",
+  "dataset": "stress",
+  "n": 40,
+  "dbs": null,
+  "simulated_user": {
+    "mode": "realistic",
+    "vague_rate": 0.2,
+    "seed": 0
+  }
+}

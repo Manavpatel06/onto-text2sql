@@ -1,5 +1,7 @@
 # Saniya: Ambiguity Stress Set, clarification prompts, simulated user
 
+**Status (Nov 20):** The stress set, clarification questions and simulated user are done (`clarify.py`, `simulated_user.py`), including the safeguards from the grader's feedback and the wrong / oracle / vague controls (`tables/simulated_user_controls.md`). Remaining: the simulated-user section of the report; optionally a small human check (two teammates answer 10 clarification questions blind).
+
 The stress set is the main benchmark; everyone's numbers depend on it, so it comes first.
 
 ## Files you own

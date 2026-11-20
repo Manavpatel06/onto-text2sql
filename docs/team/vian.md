@@ -1,5 +1,7 @@
 # Vian: ontology-grounded query planning and ambiguity detection
 
+**Status (Nov 20):** Planning and ambiguity detection are implemented and tested (`planning.py`, `ambiguity.py`, `code/tests/test_stages_cd.py`). The rule flags 20/20 ambiguous and 0/20 clear stress-set questions and 4.5% of the 222 clear Spider dev questions. Remaining: explain the rule and its out-of-sample check in the demo slides and report (`tables/ambiguity_detection.md`).
+
 Depends on Manas's `Ontology` (you can start with a hand-built `Ontology` object in tests).
 
 ## Context

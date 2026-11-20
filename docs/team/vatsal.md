@@ -1,5 +1,7 @@
 # Vatsal: verification and repair, ablation runs, integration, demo
 
+**Status (Nov 20):** Verification and repair are implemented (`verify.py`); all four configurations and the controls have been run; the demo now runs the full system and asks the person when a question is ambiguous (`ontosql demo`). Remaining: demo screenshots and the live demo for Nov 30 (GitHub link on the last slide).
+
 ## Files you own
 
 * `code/ontosql/verify.py`: `verify()`, `repair_messages()`

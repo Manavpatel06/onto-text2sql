@@ -1,7 +1,13 @@
 {
   "config": "B",
+  "tag": "",
   "model": "qwen38-27b",
   "dataset": "stress",
-  "n": 3,
-  "dbs": null
+  "n": 40,
+  "dbs": null,
+  "simulated_user": {
+    "mode": "realistic",
+    "vague_rate": 0.0,
+    "seed": 0
+  }
 }

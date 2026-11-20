@@ -1,6 +1,9 @@
-"""Local demo page for config B: a clear question, the ontology table, the SQL, and the rows.
+"""Local demo page for the full system (config D) with a real person answering.
 
-Start it with `ontosql demo`. The page calls the same pipeline as `ontosql run --config B`.
+Start it with `ontosql demo`. A clear question goes straight to SQL. An
+ambiguous one comes back first with the clarification question and its
+options; the person's answer is then used exactly as the simulated user's
+answer is in `ontosql run --config D`, and the query is verified and repaired.
 """
 
 from __future__ import annotations
@@ -75,13 +78,28 @@ class Demo:
         self.examples = load_stress_set(ROOT / "data" / "stress_set" / "stress_set.jsonl")
         self.db_ids = selected_db_ids()
         self.model = OpenAICompatibleModel()
-        self.pipeline = make_pipeline("B", self.model, SchemaCache(self.spider_dir), self.ontology_dir)
+        self.pipeline = make_pipeline("D", self.model, SchemaCache(self.spider_dir), self.ontology_dir)
 
-    def ask(self, db_id: str, question: str) -> dict:
+    def ask(self, db_id: str, question: str, answer: str | None = None) -> dict:
         from .types import Example
 
         example = Example(id="demo", db_id=db_id, question=question.strip(), gold_sql="", kind="clear", source="stress")
-        prediction = self.pipeline.predict(example)
+        if answer is None:
+            _plan, amb, clar = self.pipeline.analyse(example)
+            if clar is not None:
+                return {
+                    "needs_clarification": True,
+                    "question": question.strip(),
+                    "clarification": clar.text,
+                    "phrase": clar.phrase,
+                    "kind": clar.kind,
+                    "options": [{"key": o.key, "label": o.label, "description": o.description} for o in clar.options],
+                    "highlighted": sorted({k for o in clar.options for k in [o.key] if not k.startswith("AGG.")}),
+                    "flagged": [p.phrase for p in amb.phrases],
+                    "settled": amb.settled,
+                    "model": self.model.name,
+                }
+        prediction = self.pipeline.predict(example, user_reply=answer)
         plan = _parse_plan(prediction.trace.get("plan") or "")
         phrases = []
         highlighted: list[str] = []
@@ -102,21 +120,29 @@ class Demo:
             _valid, correct, _err = check(db_path(self.spider_dir, db_id), prediction.pred_sql, gold)
             matches_gold = correct
 
-        multi = [p for p in phrases if len(p["candidates"]) > 1]
         if prediction.asked_clarification:
-            handling = "The system asked a clarification question before writing SQL."
+            handling = (
+                f'Ambiguous: "{", ".join(prediction.flagged_phrases)}" matched more than one meaning in the ontology. '
+                f'The system asked first and used your answer: "{prediction.user_answer}".'
+            )
         else:
             handling = (
-                "Treated as a clear question. The spreadsheet supplied the column meanings, "
-                "the plan recorded one reading, and SQL was written without asking anything."
+                "Treated as a clear question. Every phrase was settled by the ontology and the rest of the question, "
+                "so SQL was written without asking anything."
             )
-            if multi:
-                handling += " A phrase named more than one column; this config still commits to a single query."
+        check_info = prediction.trace.get("final_check") or {}
+        if prediction.n_repairs:
+            handling += f" The first query failed a check and was repaired {prediction.n_repairs} time(s)."
 
         return {
             "db_id": db_id,
             "question": question.strip(),
+            "needs_clarification": False,
             "asked_clarification": prediction.asked_clarification,
+            "clarification": prediction.clarification_question,
+            "user_answer": prediction.user_answer,
+            "n_repairs": prediction.n_repairs,
+            "check": check_info,
             "handling": handling,
             "plan_text": plan_text,
             "phrases": phrases,
@@ -178,9 +204,9 @@ def make_handler(demo: Demo):
                 return
             if parsed.path == "/api/samples":
                 samples = [
-                    {"id": ex.id, "question": ex.question}
+                    {"id": ex.id, "question": ex.question, "kind": ex.kind}
                     for ex in demo.examples
-                    if ex.db_id == db_id and ex.kind == "clear"
+                    if ex.db_id == db_id
                 ]
                 self._json(200, {"questions": samples})
                 return
@@ -204,8 +230,10 @@ def make_handler(demo: Demo):
             if not question:
                 self._json(400, {"error": "type a question first"})
                 return
+            answer = payload.get("answer")
+            answer = str(answer).strip() if answer is not None else None
             try:
-                self._json(200, demo.ask(db_id, question))
+                self._json(200, demo.ask(db_id, question, answer))
             except Exception as exc:
                 self._json(500, {"error": f"{type(exc).__name__}: {exc}"})
 
@@ -217,7 +245,7 @@ def serve(port: int = 7860) -> None:
         raise SystemExit(f"demo page not found: {PAGE}")
     demo = Demo()
     server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(demo))
-    print(f"Demo ready at http://127.0.0.1:{port}  (model {demo.model.name}, config B)")
+    print(f"Demo ready at http://127.0.0.1:{port}  (model {demo.model.name}, full system, config D)")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

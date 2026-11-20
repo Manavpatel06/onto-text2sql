@@ -1,0 +1,15 @@
+{
+  "n": 40,
+  "n_clear": 20,
+  "n_ambiguous": 20,
+  "ex": 0.8,
+  "ex_clear": 0.9,
+  "ex_ambiguous": 0.7,
+  "validity": 1.0,
+  "amb_precision": 1.0,
+  "amb_recall": 1.0,
+  "amb_f1": 1.0,
+  "ucr": 0.0,
+  "avg_repairs": 0.0,
+  "median_latency_s": 6.642
+}

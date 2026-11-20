@@ -1,0 +1,5 @@
+System,EX,EX (clear),EX (ambig.),Validity,Amb. P,Amb. R,Amb. F1,UCR,CG
+A. Direct baseline,67.5,80.0,55.0,100.0,-,0.0,-,0.0,-
+B. + Ontology context,70.0,90.0,50.0,100.0,-,0.0,-,0.0,-
+C. + Clarification,80.0,90.0,70.0,100.0,100.0,100.0,100.0,0.0,20.0
+D. Full system (+ Verify),80.0,90.0,70.0,100.0,100.0,100.0,100.0,0.0,20.0

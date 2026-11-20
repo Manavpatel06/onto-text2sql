@@ -94,12 +94,12 @@
 <header>
   <div class="wrap">
     <h1>Ontology-grounded Text2SQL</h1>
-    <p class="lede">Config B answers a clear question in one pass. The spreadsheet says what each column means, the plan names the reading, and the SQL is executed. Nothing is asked back.</p>
+    <p class="lede">The full system. The ontology says what each column means. If a phrase in your question could mean more than one thing, the system asks you once before writing SQL, then checks the query and repairs it if needed.</p>
   </div>
 </header>
 <main>
   <div class="path" aria-hidden="true">
-    <span>Question</span><i>→</i><span>Ontology table</span><i>→</i><span>Query plan</span><i>→</i><span>SQL</span><i>→</i><span>Result</span>
+    <span>Question</span><i>→</i><span>Query plan + ontology</span><i>→</i><span>Ambiguous?</span><i>→</i><span>Ask you</span><i>→</i><span>SQL</span><i>→</i><span>Verify / repair</span><i>→</i><span>Result</span>
   </div>
   <p class="note" id="modelLine">Loading…</p>
   <section class="card">
@@ -109,7 +109,7 @@
         <select id="db"></select>
       </div>
       <div>
-        <label for="samples">Clear sample questions</label>
+        <label for="samples">Sample questions (clear and ambiguous)</label>
         <select id="samples"></select>
       </div>
     </div>
@@ -117,6 +117,19 @@
     <textarea id="question" placeholder="Ask something this database can answer"></textarea>
     <button id="run" type="button">Run</button>
     <p id="status"></p>
+  </section>
+  <section class="card stack hidden" id="clarify">
+    <div class="banner warn" id="clarifyWhy"></div>
+    <div>
+      <h2>The system asks</h2>
+      <p id="clarifyText" style="font-size:18px;margin:0 0 10px"></p>
+      <div id="options" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+    <div>
+      <label for="answer">Or answer in your own words</label>
+      <input id="answer" type="search" placeholder="e.g. the date the dog was adopted">
+      <button id="answerBtn" type="button" style="margin-top:8px;background:var(--gold);color:var(--maroon);border:0;font:inherit;font-weight:700;padding:8px 20px;border-radius:10px;cursor:pointer">Answer</button>
+    </div>
   </section>
   <section class="card">
     <h2>Ontology spreadsheet</h2>
@@ -146,6 +159,10 @@
     <div>
       <h2>SQL</h2>
       <pre id="sql"></pre>
+    </div>
+    <div>
+      <h2>Checks</h2>
+      <p class="meta" id="checks"></p>
     </div>
     <div>
       <h2>Output</h2>
@@ -193,7 +210,12 @@ async function refreshDb() {
   ontologyRows = ontology.rows || [];
   highlighted = new Set();
   const questions = samples.questions || [];
-  samplesEl.innerHTML = questions.map(sample => `<option value="${esc(sample.question)}">${esc(sample.question)}</option>`).join("");
+  const group = (kind, title) => {
+    const items = questions.filter(q => q.kind === kind);
+    if (!items.length) return "";
+    return `<optgroup label="${title}">` + items.map(sample => `<option value="${esc(sample.question)}">${esc(sample.question)}</option>`).join("") + "</optgroup>";
+  };
+  samplesEl.innerHTML = group("clear", "Clear") + group("ambiguous", "Ambiguous");
   questionEl.value = questions[0] ? questions[0].question : "";
   renderOntology();
 }
@@ -220,28 +242,61 @@ function fillTable(head, body, columns, rows) {
   body.innerHTML = (rows || []).map(row => `<tr>${row.map(cell => `<td>${esc(cell)}</td>`).join("")}</tr>`).join("");
 }
 
-document.querySelector("#run").addEventListener("click", async () => {
+let pending = null;
+async function ask(answer) {
   const button = document.querySelector("#run");
   const status = document.querySelector("#status");
   button.disabled = true;
-  status.textContent = "Reading the ontology and writing SQL…";
+  status.textContent = answer == null ? "Reading the ontology and checking for ambiguity…" : "Writing SQL with your answer…";
   try {
+    const body = { db_id: dbSelect.value, question: questionEl.value };
+    if (answer != null) body.answer = answer;
     const response = await fetch("/api/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ db_id: dbSelect.value, question: questionEl.value }),
+      body: JSON.stringify(body),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "request failed");
-    showResult(data);
-    status.textContent = `Done in ${data.latency_s}s.`;
+    if (data.needs_clarification) {
+      showClarification(data);
+      status.textContent = "The question is ambiguous. Pick what you meant.";
+    } else {
+      document.querySelector("#clarify").classList.add("hidden");
+      showResult(data);
+      status.textContent = `Done in ${data.latency_s}s.`;
+    }
   } catch (err) {
     status.textContent = err.message;
   } finally {
     button.disabled = false;
   }
+}
+document.querySelector("#run").addEventListener("click", () => { resultEl.classList.add("hidden"); ask(null); });
+document.querySelector("#answerBtn").addEventListener("click", () => {
+  const text = document.querySelector("#answer").value.trim();
+  if (text) ask(text);
 });
-
+function showClarification(data) {
+  pending = data;
+  const box = document.querySelector("#clarify");
+  box.classList.remove("hidden");
+  document.querySelector("#clarifyWhy").textContent =
+    `"${data.phrase}" can mean more than one thing in this database, and nothing else in the question settles it.`;
+  document.querySelector("#clarifyText").textContent = data.clarification;
+  document.querySelector("#answer").value = "";
+  const opts = document.querySelector("#options");
+  opts.innerHTML = data.options.map((o, i) =>
+    `<button type="button" data-i="${i}" style="border:1px solid var(--maroon);background:#fff;color:var(--maroon);border-radius:999px;padding:6px 14px;font:inherit;cursor:pointer">${esc(o.label)}</button>`
+  ).join("");
+  opts.querySelectorAll("button").forEach(btn => btn.addEventListener("click", () => {
+    const o = data.options[Number(btn.dataset.i)];
+    ask(`I mean ${o.description || o.label} (${o.label}).`);
+  }));
+  highlighted = new Set(data.highlighted || []);
+  renderOntology();
+  box.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 function showResult(data) {
   resultEl.classList.remove("hidden");
   const banner = document.querySelector("#banner");
@@ -255,6 +310,10 @@ function showResult(data) {
   ).join("") || `<tr><td colspan="4">The plan did not name a spreadsheet column.</td></tr>`;
   document.querySelector("#plan").textContent = data.plan_text || "(no plan)";
   document.querySelector("#sql").textContent = data.sql || "(no SQL)";
+  const c = data.check || {};
+  document.querySelector("#checks").textContent = c.ok
+    ? `Syntax, schema and execution checks passed${data.n_repairs ? ` after ${data.n_repairs} repair(s)` : " on the first try"}.`
+    : `Check failed at the ${c.stage || "?"} step: ${c.message || ""}`;
   const bits = [];
   if (data.exec_error) bits.push(data.exec_error);
   else bits.push(`${data.row_count} row${data.row_count === 1 ? "" : "s"}${data.truncated ? ", first 100 shown" : ""}`);

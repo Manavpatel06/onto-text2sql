@@ -59,30 +59,38 @@ Each stage can be switched off, so a gain can be tied to the stage that produced
 
 ## Demo
 
-`ontosql demo` opens a local page for config B, the path a clear question takes. Pick a database and the ontology spreadsheet for that database loads. The sample questions are the clear items from the stress set. Run one and the page shows the spreadsheet rows the plan used, the plan, the SQL, and the result table.
+`ontosql demo` opens a local page that runs the full system (config D) with a real person in place of the simulated user. Pick a database and its ontology spreadsheet loads. The sample questions are the clear and ambiguous items from the stress set, or type your own.
 
-The question in these shots is "Which states have both owners and professionals living there?" on `dog_kennels`. The plan names `Owners.state` and `Professionals.state`. The SQL joins the two tables on state. The result is Wisconsin, Indiana, and Mississippi, the same rows as the gold query. Nothing is asked back, because the question was treated as clear.
+* A clear question goes straight through: plan, SQL, checks, and the result table, with the spreadsheet rows the plan used highlighted.
+* An ambiguous question stops first. The page says which phrase is ambiguous and why, shows the clarification question built from the ontology definitions, and offers one button per reading plus a free-text box. Your answer is appended to the question exactly as the simulated user's answer is in the experiments, then the SQL is written, checked, and repaired if needed.
+* When the question is one of the stress-set items, the page also says whether the result matches the gold SQL.
 
-![Demo page. The header is ASU maroon and gold. The database is WTA tennis, a clear sample question is selected from a dropdown, and the ontology spreadsheet lists table, column, preferred label, synonyms, and definition.](docs/figures/demo-interface.png)
+The screenshots below show the clear-question path.
 
-![Demo result for a clear dog-kennels question. The banner says the question was treated as clear. A table lists the spreadsheet columns the plan used. The query plan, the SQL selecting distinct states shared by owners and professionals, and the output rows Wisconsin, Indiana, and Mississippi are shown. The result matches the gold SQL.](docs/figures/demo-result.png)
+![Demo page. The header is ASU maroon and gold. The database is WTA tennis, a sample question is selected from a dropdown, and the ontology spreadsheet lists table, column, preferred label, synonyms, and definition.](docs/figures/demo-interface.png)
+
+![Demo result for a clear dog-kennels question. A table lists the spreadsheet columns the plan used. The query plan, the SQL selecting distinct states shared by owners and professionals, and the output rows Wisconsin, Indiana, and Mississippi are shown. The result matches the gold SQL.](docs/figures/demo-result.png)
 
 ```bash
 ontosql demo
 ```
 
-Then open http://127.0.0.1:7860. A question that has not been run before takes about 15 seconds. A repeated question returns immediately, because model replies are cached.
+Then open http://127.0.0.1:7860. A question that has not been run before takes several seconds. A repeated question returns immediately, because model replies are cached.
 
 ## What is in place
 
 | Piece | Status |
 |---|---|
-| Config A, execution match, metrics, result tables | Done. On the 222 Spider dev questions for the three databases, `qwen38-27b` scores 75.2% execution accuracy and 99.5% of queries are valid. Gold SQL scores 222/222, so the evaluator itself is sound. |
+| Config A, execution match, metrics, result tables | Done. Gold SQL scores 222/222 on the Spider dev questions for the three databases, so the evaluator itself is sound. |
 | Databases, ontology spreadsheets, Turtle | Done for `dog_kennels`, `student_transcripts_tracking`, and `wta_1`. |
-| Query planning and config B | Done. The plan is JSON (tables, joins, filters, key phrases). Bad JSON is retried once, then generation continues without a plan. |
-| Ambiguity stress set | Done. 20 clear Spider questions and 20 ambiguous rewrites (5 each of column, temporal, aggregation, and reference). Every interpretation executes, and the two readings of an ambiguous item return different rows. |
-| Demo | Done for the clear-question path (config B). |
-| Ambiguity detection, clarification, simulated user, verification and repair | Interfaces are wired. The stage bodies are the remaining work for configs C and D. |
+| Query planning and config B | Done. Bad plan JSON is retried once, then generation continues without a plan. |
+| Ambiguity stress set | Done. 20 clear Spider questions and 20 ambiguous rewrites (5 each of column, temporal, aggregation, and reference). Every interpretation executes, and the readings of an ambiguous item return different rows. |
+| Ambiguity detection (config C) | Done. Deterministic rule over the SKOS labels plus a small aggregate vocabulary; every flag names the phrase and the competing columns. |
+| Clarification and simulated user (config C) | Done, with the safeguards described below and wrong / oracle / vague controls. |
+| Verification and repair (config D) | Done. Syntax (sqlglot), schema (every table and column, with "did you mean" hints) and read-only execution; at most two repairs. |
+| Classical baselines | Done. TF-IDF and BM25 schema linking and a BM25 score-margin ambiguity detector, compared against the ontology (`ontosql linking`, no LLM calls). |
+| Demo | Done for the full system: an ambiguous question is answered by the person at the keyboard. |
+| Error analysis | Done. Every wrong answer is labelled in `evaluations/error_analysis/errors_labelled.csv`. |
 
 ## Setup
 
@@ -107,16 +115,19 @@ ontosql report                               # tables -> evaluations/tables/
 ontosql errors                               # wrong answers -> evaluations/error_analysis/errors.csv
 ```
 
-A short config B check on the stress set:
+Run A, B, C and D the same way. Simulated-user controls and the classical baselines:
 
 ```bash
-ontosql run --config B --dataset stress --limit 3
-ontosql evaluate --config B --dataset stress --limit 3
+ontosql run --config C --user wrong --tag wrong        # then: ontosql evaluate --config C --tag wrong
+ontosql run --config C --user oracle --tag oracle
+ontosql run --config C --vague-rate 0.2 --tag vague20
+ontosql linking                                        # TF-IDF / BM25 vs ontology, no LLM calls
 ```
 
 Useful flags: `--dataset stress|spider|all` (default `stress`), `--limit 5` for a
-quick smoke test, `--dbs dog_kennels,wta_1` to override `data/selected_dbs.txt`.
-Model replies are cached in `.cache/llm/`, so re-running a configuration costs nothing.
+quick smoke test, `--workers 4` for parallel model requests, `--dbs dog_kennels,wta_1`
+to override `data/selected_dbs.txt`. Model replies are cached in `.cache/llm/`, so
+re-running a configuration costs nothing. The full protocol is in `docs/EXPERIMENTS.md`.
 
 Other commands: `ontosql check-stress --execute` validates the stress set and
 runs every gold and interpretation query; `ontosql schema --db dog_kennels`
@@ -134,6 +145,67 @@ from the spreadsheet.
 | Clarification Gain (CG) | EX(C) minus EX(B) on ambiguous questions |
 
 Result comparisons are reported with 95% paired-bootstrap confidence intervals, since the stress set is about 40 questions. Exact string match on the SQL is not used. Equivalent queries can be written many ways, and execution accuracy already checks the answer.
+
+## Results
+
+All runs use `qwen38-27b` on ASU Voyager at temperature 0. Tables are regenerated by `ontosql report` and `ontosql linking` into `evaluations/tables/`.
+
+**Main ablation, Ambiguity Stress Set (40 questions: 20 clear, 20 ambiguous), %**
+
+| System | EX | EX clear | EX ambiguous | Validity | Ambiguity P / R | Unnecessary clarification | Clarification gain |
+|---|---|---|---|---|---|---|---|
+| A. Direct baseline | 67.5 | 80.0 | 55.0 | 100 | - / 0 | 0 | - |
+| B. + Ontology context | 70.0 | 90.0 | 50.0 | 100 | - / 0 | 0 | - |
+| C. + Clarification | 80.0 | 90.0 | 70.0 | 100 | 100 / 100 | 0 | +20.0 |
+| D. Full system | 80.0 | 90.0 | 70.0 | 100 | 100 / 100 | 0 | +20.0 |
+
+* The ontology context helps clear questions (80 to 90%) but not ambiguous ones (55 to 50%): more meaning does not resolve a question that has two meanings.
+* Asking one question raises accuracy on ambiguous questions from 50 to 70%, without asking about any clear one.
+* Verification adds nothing here: every generated query was already valid, so no repair was triggered.
+* With 40 questions the 95% intervals are wide (D vs A: +12.5 points, CI -2.5 to +27.5), so these are directional results.
+
+**Is the gain from the simulated user? (config C, %)**
+
+| Simulated user | EX | EX ambiguous |
+|---|---|---|
+| Wrong reading (control) | 45.0 | 0.0 |
+| Realistic, 20% vague replies | 82.5 | 75.0 |
+| Realistic (main result) | 80.0 | 70.0 |
+| Oracle reading (upper bound) | 82.5 | 75.0 |
+
+A wrong answer drives ambiguous accuracy to 0%, so the gain comes from the information in the answer, not from the act of asking. The realistic user is within one question of the oracle. One ambiguous question is worth 5 points, so the vague run being level with the oracle is within noise.
+
+**Classical baselines (no LLM)**
+
+Schema linking against the columns each gold query reads (join keys excluded), 222 Spider dev + 39 stress questions:
+
+| Method | Recall@3 | P | R | F1 |
+|---|---|---|---|---|
+| TF-IDF, column names | 67.0 | 44.3 | 67.0 | 53.4 |
+| BM25, column names | 66.3 | 44.5 | 66.3 | 53.2 |
+| BM25, names + ontology labels | 68.4 | 44.5 | 68.4 | 53.9 |
+| Ontology matching (SKOS labels + context rules) | 66.7 | 64.6 | 70.9 | 67.6 |
+
+Ranked retrieval finds the right columns about as often, but it has no notion of "enough": it always returns its top three. The ontology links only the columns the question names, so precision is 20 points higher (F1 67.6 vs 53.9).
+
+Ambiguity detection:
+
+| Detector | P | R | F1 | Flags on 222 clear Spider questions |
+|---|---|---|---|---|
+| Ontology rule | 100 | 100 | 100 | 4.5% |
+| BM25 score margin, best tau (0.05) | 66.7 | 50.0 | 57.1 | 23.4% |
+
+The ontology rule was developed while the stress set was being built, so its stress-set score is optimistic. The Spider column is the out-of-sample check: it asks about 4.5% of questions nobody tuned it for, against 23% for the best classical detector.
+
+**Why the full system still fails (labelled errors, config D, 8 wrong answers)**
+
+| Category | Count |
+|---|---|
+| Projection (right columns and filters, wrong output shape) | 4 |
+| Join / set logic | 2 |
+| Unresolved ambiguity (asked about the wrong phrase) | 2 |
+
+In A and B, 8 to 9 of the wrong answers were unresolved ambiguity. After clarification, the remaining errors are mostly about output shape, which the stress set's gold queries specify strictly.
 
 ## Repository layout
 

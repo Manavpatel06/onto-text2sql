@@ -9,7 +9,10 @@
   python -m ontosql build-ontology --db <db_id>            CSV -> Turtle in data/ontology/
   python -m ontosql get-spider [--all]                     download Spider into data/spider/
   python -m ontosql models                                 list chat models for the key in .env
-  python -m ontosql demo [--port 7860]                 open the config B demo page
+  python -m ontosql demo [--port 7860]                     open the demo page
+  python -m ontosql linking                                BM25/TF-IDF vs ontology schema linking (no LLM)
+
+  run options: --user realistic|oracle|wrong, --vague-rate 0.2, --tag NAME, --workers 4
 """
 
 from __future__ import annotations
@@ -56,27 +59,44 @@ def load_examples(args) -> list:
     return examples
 
 
+def run_name(args) -> str:
+    """Folder name for a run: the config, plus a tag for simulated-user variants (C-oracle, D-vague20)."""
+    name = args.config.upper()
+    return f"{name}-{args.tag}" if getattr(args, "tag", "") else name
+
+
 def cmd_run(args) -> None:
+    from concurrent.futures import ThreadPoolExecutor
+
     from .baseline import SchemaCache
     from .llm import OpenAICompatibleModel
     from .pipeline import make_pipeline
 
     examples = load_examples(args)
     model = OpenAICompatibleModel(model=args.model)
-    pipe = make_pipeline(args.config, model, SchemaCache(args.spider_dir), args.ontology_dir)
-    out_dir = Path(args.runs_dir) / args.config.upper()
-    preds = []
-    for i, ex in enumerate(examples, 1):
+    pipe = make_pipeline(
+        args.config, model, SchemaCache(args.spider_dir), args.ontology_dir,
+        user_mode=args.user, vague_rate=args.vague_rate, seed=args.seed,
+    )
+    out_dir = Path(args.runs_dir) / run_name(args)
+    done = [0]
+
+    def one(ex):
         p = pipe.predict(ex)
-        preds.append(p)
+        done[0] += 1
         mark = "!" if p.error else ("?" if p.asked_clarification else ".")
-        print(mark, end="" if i % 50 else "\n", flush=True)
+        print(mark, end="" if done[0] % 50 else "\n", flush=True)
+        return p
+
+    with ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
+        preds = list(pool.map(one, examples))  # keeps question order
     print()
     write_jsonl(out_dir / "predictions.jsonl", (p.to_dict() for p in preds))
     (out_dir / "run_info.json").write_text(
         json.dumps(
-            {"config": args.config.upper(), "model": model.name, "dataset": args.dataset,
-             "n": len(preds), "dbs": selected_dbs(args) if args.dataset != "stress" else None},
+            {"config": args.config.upper(), "tag": args.tag, "model": model.name, "dataset": args.dataset,
+             "n": len(preds), "dbs": selected_dbs(args) if args.dataset != "stress" else None,
+             "simulated_user": {"mode": args.user, "vague_rate": args.vague_rate, "seed": args.seed}},
             indent=2,
         )
     )
@@ -84,7 +104,7 @@ def cmd_run(args) -> None:
 
 
 def cmd_evaluate(args) -> None:
-    out_dir = Path(args.runs_dir) / args.config.upper()
+    out_dir = Path(args.runs_dir) / run_name(args)
     preds = [Prediction.from_dict(r) for r in load_jsonl(out_dir / "predictions.jsonl")]
     examples = load_examples(args)
     scored = score_run(examples, preds, args.spider_dir, timeout_s=args.timeout)
@@ -158,6 +178,23 @@ def cmd_get_spider(args) -> None:
     get_spider(args.spider_dir, keep="all" if args.all else "dev")
 
 
+def cmd_linking(args) -> None:
+    from .db import db_path
+    from .ontology import load_ontology
+    from .schema import extract_schema
+    from .schema_linking import run_ambiguity, run_linking, write_tables
+
+    dbs = selected_dbs(args)
+    schemas = {d: extract_schema(db_path(args.spider_dir, d), d) for d in dbs}
+    ontos = {d: load_ontology(Path(args.ontology_dir) / f"{d}.ttl", d) for d in dbs}
+    spider = load_spider(args.spider_dir, dbs, split="dev")
+    stress = load_stress_set(args.stress)
+    link = run_linking(spider + stress, schemas.get, ontos.get)
+    amb = run_ambiguity(stress, spider, schemas.get, ontos.get)
+    print(write_tables(link, amb, args.tables_dir))
+    print(f"\ntables written to {args.tables_dir} (schema_linking.*, ambiguity_detection.*)")
+
+
 def cmd_demo(args) -> None:
     from .demo_server import serve
 
@@ -189,19 +226,33 @@ def main(argv=None) -> None:
         p.add_argument("--dbs", help="comma-separated db_ids (default: data/selected_dbs.txt)")
         p.add_argument("--limit", type=int, default=0)
 
+    def run_args(p):
+        p.add_argument("--tag", default="", help="suffix for the run folder, e.g. oracle -> runs/C-oracle")
+
     p = sub.add_parser("run")
     p.add_argument("--config", required=True, choices=list("ABCDabcd"))
     p.add_argument("--model", default=None, help="overrides LLM_MODEL")
+    p.add_argument("--user", choices=["realistic", "oracle", "wrong"], default="realistic",
+                   help="simulated user mode (configs C and D)")
+    p.add_argument("--vague-rate", type=float, default=0.0, help="share of uninformative user replies")
+    p.add_argument("--seed", type=int, default=0, help="seed for the simulated user's phrasing")
+    p.add_argument("--workers", type=int, default=4, help="parallel requests to the model")
+    run_args(p)
     data_args(p)
     p.set_defaults(fn=cmd_run)
 
     p = sub.add_parser("evaluate")
     p.add_argument("--config", required=True, choices=list("ABCDabcd"))
     p.add_argument("--timeout", type=float, default=10.0)
+    run_args(p)
     data_args(p)
     p.set_defaults(fn=cmd_evaluate)
 
     sub.add_parser("report").set_defaults(fn=cmd_report)
+
+    p = sub.add_parser("linking", help="BM25/TF-IDF vs ontology schema linking and ambiguity detection (no LLM)")
+    p.add_argument("--dbs", help="comma-separated db_ids (default: data/selected_dbs.txt)")
+    p.set_defaults(fn=cmd_linking)
     sub.add_parser("errors").set_defaults(fn=cmd_errors)
 
     p = sub.add_parser("check-stress")
