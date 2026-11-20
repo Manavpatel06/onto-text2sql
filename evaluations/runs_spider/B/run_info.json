@@ -1,0 +1,17 @@
+{
+  "config": "B",
+  "tag": "",
+  "model": "qwen38-27b",
+  "dataset": "spider",
+  "n": 222,
+  "dbs": [
+    "dog_kennels",
+    "student_transcripts_tracking",
+    "wta_1"
+  ],
+  "simulated_user": {
+    "mode": "realistic",
+    "vague_rate": 0.0,
+    "seed": 0
+  }
+}

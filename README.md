@@ -177,16 +177,16 @@ A wrong answer drives ambiguous accuracy to 0%, so the gain comes from the infor
 
 **Classical baselines (no LLM)**
 
-Schema linking against the columns each gold query reads (join keys excluded), 222 Spider dev + 39 stress questions:
+Schema linking against the columns each gold query reads (join keys excluded), 214 Spider dev + 39 stress questions (questions whose gold query reads no column, such as `count(*)`, are skipped):
 
 | Method | Recall@3 | P | R | F1 |
 |---|---|---|---|---|
 | TF-IDF, column names | 67.0 | 44.3 | 67.0 | 53.4 |
 | BM25, column names | 66.3 | 44.5 | 66.3 | 53.2 |
 | BM25, names + ontology labels | 68.4 | 44.5 | 68.4 | 53.9 |
-| Ontology matching (SKOS labels + context rules) | 66.7 | 64.6 | 70.9 | 67.6 |
+| Ontology matching (SKOS labels + context rules) | 66.3 | 66.7 | 69.9 | 68.2 |
 
-Ranked retrieval finds the right columns about as often, but it has no notion of "enough": it always returns its top three. The ontology links only the columns the question names, so precision is 20 points higher (F1 67.6 vs 53.9).
+Ranked retrieval finds the right columns about as often, but it has no notion of "enough": it always returns its top three. The ontology links only the columns the question names, so precision is 22 points higher (F1 68.2 vs 53.9).
 
 Ambiguity detection:
 
@@ -196,6 +196,19 @@ Ambiguity detection:
 | BM25 score margin, best tau (0.05) | 66.7 | 50.0 | 57.1 | 23.4% |
 
 The ontology rule was developed while the stress set was being built, so its stress-set score is optimistic. The Spider column is the out-of-sample check: it asks about 4.5% of questions nobody tuned it for, against 23% for the best classical detector.
+
+**Larger check: 222 clear Spider dev questions, %**
+
+| System | EX | Validity | Asked a clarification |
+|---|---|---|---|
+| A. Direct baseline | 75.2 | 99.5 | - |
+| B. + Ontology context | 77.5 | 100 | - |
+| D. Full system | 77.5 | 100 | 4.5 (10 of 222) |
+
+* The ontology context adds 2.3 points on clear questions (95% CI -1.4 to +5.9), the same direction as on the stress set.
+* The full system asks unnecessarily on 10 of 222 questions and loses no accuracy from it; no repair was triggered.
+
+Tables: `evaluations/tables_spider/`.
 
 **Why the full system still fails (labelled errors, config D, 8 wrong answers)**
 
